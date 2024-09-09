@@ -1,5 +1,5 @@
 # Example
-curl -k https://2143.christmas/tea/1234
+`curl -k https://2143.christmas/tea/1234`
 ## Kubernetes Deployment with loadbalancer:
 ![Kubernetes Deployment](http://2143.moe/f/uZsk.png)
 
