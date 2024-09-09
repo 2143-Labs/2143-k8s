@@ -1,20 +1,20 @@
-#apiVersion: gateway.networking.k8s.io/v1
-#kind: HTTPRoute
-#metadata:
-  #name: cafe-tls-redirect
-#spec:
-  #parentRefs:
-  #- name: gateway
-    #sectionName: http
-  ##hostnames:
-  ##- "cafe.example.com"
-  #rules:
-  #- filters:
-    #- type: RequestRedirect
-      #requestRedirect:
-        #scheme: https
-        #port: 443
-#---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cafe-tls-redirect
+spec:
+  parentRefs:
+  - name: gateway
+    sectionName: http
+  hostnames:
+  - "cafe.example.com"
+  rules:
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
+        statusCode: 301
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -22,7 +22,9 @@ metadata:
 spec:
   parentRefs:
   - name: cafe
-    sectionName: http
+    sectionName: https
+  hostnames:
+  - "cafe.example.com"
   rules:
   - matches:
     - path:
@@ -47,7 +49,9 @@ metadata:
 spec:
   parentRefs:
   - name: cafe
-    sectionName: http
+    sectionName: https
+  hostnames:
+  - "cafe.example.com"
   rules:
   - matches:
     - path:
