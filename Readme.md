@@ -30,14 +30,22 @@ This is just a test certificate, replace the secret with your own
 
 # Installation
 ## Create Cluster
+```bash
 kind create cluster --name net
+```
 
 ## Install CRDs
+```bash
 kubectl kustomize "https://github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v1.4.0" | kubectl apply -f -
+```
 
 ## Deploy everything here
+```bash
 kubectl apply -f .
+```
 
 ## Test
+```bash
 curl -k https://2143.christmas/tea/1234
 curl -k https://2143.christmas/coffee/asdf
+```
