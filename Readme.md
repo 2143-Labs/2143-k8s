@@ -1,19 +1,3 @@
-# Install 2
-
-## Create Cluster
-kind create cluster --name net
-
-## Install CRDs
-kubectl kustomize "https://github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v1.4.0" | kubectl apply -f -
-
-## Deploy everything here
-kubectl apply -f .
-
-## Test
-kubectl exec -it -n nginx-gateway pods/nginx-gateway-bccf868b6-7w9jt -c nginx -- /bin/sh
-curl -k --resolve cafe.example.com:443:127.0.0.1 https://cafe.example.com/tea/1234
-curl -k --resolve cafe.example.com:443:127.0.0.1 https://cafe.example.com/coffee/asdf
-
 # About each file
 ## nginx-crds.yaml:
 https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric/v1.4.0/deploy/crds.yaml
@@ -38,3 +22,17 @@ This file defines two `HTTPRoute`s in `cafe` gateway. It routes `/tea` to the `t
 and `/coffee` to the `coffee` service.
 
 It also defines an HTTP -> HTTPS redirect.
+
+# Installation
+## Create Cluster
+kind create cluster --name net
+
+## Install CRDs
+kubectl kustomize "https://github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v1.4.0" | kubectl apply -f -
+
+## Deploy everything here
+kubectl apply -f .
+
+## Test
+curl -k https://2143.christmas/tea/1234
+curl -k https://2143.christmas/coffee/asdf
