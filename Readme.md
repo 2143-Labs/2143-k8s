@@ -39,6 +39,15 @@ kind create cluster --name net
 kubectl kustomize "https://github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v1.4.0" | kubectl apply -f -
 ```
 
+## Install cert-manager w/ api gateway
+```bash
+cmctl x install
+helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager \
+        --set config.apiVersion="controller.config.cert-manager.io/v1alpha1" \
+        --set config.kind="ControllerConfiguration" \
+        --set config.enableGatewayAPI=tru
+```
+
 ## Deploy everything here
 ```bash
 kubectl apply -f .
