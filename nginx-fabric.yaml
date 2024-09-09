@@ -152,6 +152,7 @@ metadata:
   name: nginx-gateway
   namespace: nginx-gateway
 spec:
+  externalTrafficPolicy: Local
   ports:
   - name: http
     port: 80
@@ -164,7 +165,7 @@ spec:
   selector:
     app.kubernetes.io/instance: nginx-gateway
     app.kubernetes.io/name: nginx-gateway
-  type: ClusterIP
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment

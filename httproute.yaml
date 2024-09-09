@@ -7,7 +7,7 @@ spec:
   - name: gateway
     sectionName: http
   hostnames:
-  - "cafe.example.com"
+  - "2143.christmas"
   rules:
   - filters:
     - type: RequestRedirect
@@ -24,7 +24,7 @@ spec:
   - name: cafe
     sectionName: https
   hostnames:
-  - "cafe.example.com"
+  - "2143.christmas"
   rules:
   - matches:
     - path:
@@ -51,7 +51,7 @@ spec:
   - name: cafe
     sectionName: https
   hostnames:
-  - "cafe.example.com"
+  - "2143.christmas"
   rules:
   - matches:
     - path:
