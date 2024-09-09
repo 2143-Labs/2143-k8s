@@ -8,38 +8,33 @@ spec:
   - name: http
     port: 80
     protocol: HTTP
-#apiVersion: gateway.networking.k8s.io/v1
-#kind: Gateway
-#metadata:
-#  name: gateway
-#spec:
-#  gatewayClassName: nginx
-#  listeners:
-#  - name: http
-#    port: 80
-#    protocol: HTTP
-#  - name: https
-#    port: 443
-#    protocol: HTTPS
-#    tls:
-#      mode: Terminate
-#      certificateRefs:
-#      - kind: Secret
-#        name: cafe-secret
-#        namespace: certificate
-#---
-#apiVersion: gateway.networking.k8s.io/v1beta1
-#kind: ReferenceGrant
-#metadata:
-#  name: access-to-cafe-secret
-#  namespace: certificate
-#spec:
-#  to:
-#  - group: ""
-#    kind: Secret
-#    name: cafe-secret # if you omit this name, then Gateways in default ns can access all Secrets in the certificate ns
-#  from:
-#  - group: gateway.networking.k8s.io
-#    kind: Gateway
-#    namespace: default
-#
+    #allowedRoutes:
+      #namespaces:
+        #from: All
+  - name: https
+    port: 443
+    protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: All
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: cafe-secret
+        #namespace: certificate
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: access-to-cafe-secret
+  namespace: certificate
+spec:
+  to:
+  - group: ""
+    kind: Secret
+    name: cafe-secret # if you omit this name, then Gateways in default ns can access all Secrets in the certificate ns
+  from:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    namespace: default
