@@ -44,8 +44,9 @@ spec:
       - cert-manager
 
   privateKey:
-    algorithm: ECDSA
-    size: 256
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
 
   issuerRef:
     name: letsencrypt-staging
