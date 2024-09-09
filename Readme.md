@@ -49,3 +49,9 @@ kubectl apply -f .
 curl -k https://2143.christmas/tea/1234
 curl -k https://2143.christmas/coffee/asdf
 ```
+
+# Cert-manager
+
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
+```
