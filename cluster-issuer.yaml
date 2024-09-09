@@ -11,7 +11,30 @@ spec:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       # Secret resource that will be used to store the account's private key.
-      name: cafe-secret-staging
+      name: cafe-tls-private-key-staging
+
+    solvers:
+    - http01:
+        gatewayHTTPRoute:
+          parentRefs:
+            - name: cafe
+              namespace: default
+              kind: Gateway
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: john@john2143.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret resource that will be used to store the account's private key.
+      name: cafe-tls-private-key-prod
 
     solvers:
     - http01:
@@ -26,7 +49,7 @@ kind: Certificate
 metadata:
   name: 2143.christmas
 spec:
-  secretName: cafe-secret-staging
+  secretName: cafe-tls-key-prod
   commonName: 2143.christmas
   dnsNames:
     - 2143.christmas
@@ -49,6 +72,6 @@ spec:
     size: 4096
 
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-prod
     kind: Issuer
 ---
