@@ -12,11 +12,20 @@ spec:
       labels:
         app: john2143-com
     spec:
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: files-pvc
+
       containers:
       - name: john2143-com
-        image: ghcr.io/john2143/john2143.com:21
+        image: ghcr.io/john2143/john2143.com:23
         ports:
         - containerPort: 3000
+        volumeMounts:
+        - mountPath: /app/juushFiles
+          name: data-volume
+
 ---
 apiVersion: v1
 kind: Service
@@ -47,10 +56,10 @@ spec:
     spec:
       volumes:
       - name: mongodata
-        emptyDir:
-          sizeLimit: 50Mi
-        #persistentVolumeClaim:
-          #claimName: mongo-volume-claim
+        #emptyDir:
+          #sizeLimit: 50Mi
+        persistentVolumeClaim:
+          claimName: mongo-pvc
 
       containers:
       - name: mongo
@@ -67,6 +76,30 @@ spec:
         volumeMounts:
           - mountPath: /data/db
             name: mongodata
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: files-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage-retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: do-block-storage-retain
 ---
 apiVersion: v1
 kind: Service

@@ -12,13 +12,13 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /2143/
-    filters:
-      - type: URLRewrite
-        urlRewrite:
-          path:
-            type: ReplacePrefixMatch
-            replacePrefixMatch: /
+        value: /
+    #filters:
+      #- type: URLRewrite
+        #urlRewrite:
+          #path:
+            #type: ReplacePrefixMatch
+            #replacePrefixMatch: /
     backendRefs:
       # name of the service
     - name: john2143-com
