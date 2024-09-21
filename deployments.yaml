@@ -19,12 +19,40 @@ spec:
 
       containers:
       - name: john2143-com
-        image: ghcr.io/john2143/john2143.com:23
+        image: ghcr.io/john2143/john2143.com:34
         ports:
         - containerPort: 3000
         volumeMounts:
         - mountPath: /app/juushFiles
           name: data-volume
+        env:
+        - name: S3_ENDPOINT_URL
+          valueFrom:
+            secretKeyRef:
+              name: s3-creds
+              key: S3_ENDPOINT_URL
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: s3-creds
+              key: S3_ACCESS_KEY
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: s3-creds
+              key: S3_SECRET_KEY
+        - name: BUCKET
+          value: imagehost-files
+        - name: FOLDER
+          value: public-prod
+        - name: DB
+          value: mongodb://admin:pass@mongo
+        - name: PORT
+          value: "3000"
+        - name: IP
+          value: "0.0.0.0"
+        - name: NODE_ENV
+          value: production
 
 ---
 apiVersion: v1

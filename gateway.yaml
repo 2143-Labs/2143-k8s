@@ -9,6 +9,7 @@ spec:
   gatewayClassName: nginx
   listeners:
   - name: http
+    hostname: 2143.christmas
     port: 80
     protocol: HTTP
     allowedRoutes:
