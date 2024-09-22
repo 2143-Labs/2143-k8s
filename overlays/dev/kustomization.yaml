@@ -3,3 +3,13 @@ kind: Kustomization
 resources:
 - ../../base
 - pvc.yaml
+- busybox.yaml
+patches:
+- path: deployment.yaml
+# also remove the env var "S3_ENDPOINT_URL"
+- target:
+    kind: Deployment
+    name: john2143-com
+  patch: |
+    - op: remove
+      path: /spec/template/spec/containers/0/env/0

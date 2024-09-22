@@ -6,3 +6,4 @@ resources:
 - httproute.yaml
 - nginx-crds.yaml
 - nginx-fabric.yaml
+- endpoint-base.yaml
