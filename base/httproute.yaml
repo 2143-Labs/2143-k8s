@@ -13,8 +13,8 @@ spec:
     - path:
         type: PathPrefix
         value: /
-    filters:
-    - type: RequestHeaderModifier
+    #filters:
+    #- type: RequestHeaderModifier
       # The digitalocean loadbalancer send uses the `X-Forwarded-For` header to
       # send the client's IP address
       #
