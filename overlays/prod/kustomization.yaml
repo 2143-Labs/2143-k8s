@@ -3,10 +3,12 @@ kind: Kustomization
 resources:
 - ../../base
 - cluster-issuer.yaml
+- certs.yaml
 - pvc.yaml
 - https-redirect.yaml
 patches:
 - path: gateway.yaml
+- path: loadbalancer.yaml
 #- path: httproute.yaml
 # also remove the env var "S3_ENDPOINT_URL"
 - target:
