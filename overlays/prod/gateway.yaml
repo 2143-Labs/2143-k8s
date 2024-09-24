@@ -3,7 +3,7 @@ kind: Gateway
 metadata:
   name: cafe
   annotations:
-    cert-manager.io/issuer: letsencrypt-staging
+    cert-manager.io/issuer: letsencrypt-prod
 spec:
   listeners:
   # certs are renewed via http challenge
@@ -25,7 +25,7 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: 2143-gay-tls-key-staging
+        name: 2143-gay-tls-key-prod
         namespace: default
 
   - name: https-christmas
@@ -39,7 +39,7 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: 2143-christmas-tls-key-staging
+        name: 2143-christmas-tls-key-prod
         namespace: default
 
   - name: https-baby
@@ -53,5 +53,5 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: 2143-baby-key-staging
+        name: 2143-baby-key-prod
         namespace: default
