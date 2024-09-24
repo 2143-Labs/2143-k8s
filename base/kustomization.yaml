@@ -1,6 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+- https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric/0ade9ede5c5be1eb7137308c08c7c17608515ca8/deploy/crds.yaml
+#- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard
+- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/experimental
 - deployments.yaml
 - gateway.yaml
 - httproute.yaml
@@ -8,5 +11,3 @@ resources:
 - endpoint-base.yaml
 - client-settings-policy.yaml
 # Add the crds for gateway api
-- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard
-
