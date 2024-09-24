@@ -19,7 +19,9 @@ spec:
 
       containers:
       - name: john2143-com
-        image: ghcr.io/john2143/john2143.com:34
+        #image: ghcr.io/john2143/john2143.com:34
+        image: imagehost:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         volumeMounts:
@@ -53,6 +55,8 @@ spec:
           value: "0.0.0.0"
         - name: NODE_ENV
           value: production
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: "0"
 
 ---
 apiVersion: v1

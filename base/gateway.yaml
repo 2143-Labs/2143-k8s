@@ -15,20 +15,6 @@ spec:
     allowedRoutes:
       namespaces:
         from: Same
-
-  #- name: https
-    #hostname: 2143.christmas
-    #port: 443
-    #protocol: HTTPS
-    #allowedRoutes:
-      #namespaces:
-        #from: Same
-    #tls:
-      #mode: Terminate
-      #certificateRefs:
-      #- kind: Secret
-        #name: cafe-tls-key-prod
-        #namespace: default
 #---
 #apiVersion: gateway.networking.k8s.io/v1beta1
 #kind: ReferenceGrant

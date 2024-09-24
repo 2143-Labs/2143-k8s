@@ -47,9 +47,40 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
+  name: 2143.gay
+spec:
+  secretName: 2143-gay-tls-key-staging
+  commonName: 2143.gay
+  dnsNames:
+    - 2143.gay
+
+  duration: 2160h # 14d
+  renewBefore: 360h # 7d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+
+  issuerRef:
+    name: letsencrypt-staging
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
   name: 2143.christmas
 spec:
-  secretName: cafe-tls-key-prod
+  secretName: 2143-christmas-tls-key-staging
   commonName: 2143.christmas
   dnsNames:
     - 2143.christmas
@@ -72,6 +103,37 @@ spec:
     size: 4096
 
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-staging
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: 2143.baby
+spec:
+  secretName: 2143-baby-tls-key-staging
+  commonName: 2143.baby
+  dnsNames:
+    - 2143.baby
+
+  duration: 2160h # 14d
+  renewBefore: 360h # 7d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+
+  issuerRef:
+    name: letsencrypt-staging
     kind: Issuer
 ---
