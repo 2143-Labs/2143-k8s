@@ -4,7 +4,9 @@ resources:
 - deployments.yaml
 - gateway.yaml
 - httproute.yaml
-- nginx-crds.yaml
 - nginx-fabric.yaml
 - endpoint-base.yaml
 - client-settings-policy.yaml
+# Add the crds for gateway api
+- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard
+
