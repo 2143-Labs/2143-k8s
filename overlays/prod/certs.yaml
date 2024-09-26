@@ -39,6 +39,7 @@ spec:
   commonName: 2143.christmas
   dnsNames:
     - 2143.christmas
+    - misskey.2143.christmas
 
   duration: 2160h # 14d
   renewBefore: 360h # 7d

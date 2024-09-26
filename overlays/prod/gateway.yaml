@@ -42,6 +42,20 @@ spec:
         name: 2143-christmas-tls-key-prod
         namespace: default
 
+  - name: https-christmas-misskey
+    hostname: misskey.2143.christmas
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-christmas-tls-key-prod
+        namespace: default
+
   - name: https-baby
     hostname: 2143.baby
     port: 443

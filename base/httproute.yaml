@@ -6,8 +6,11 @@ spec:
   parentRefs:
   - name: cafe
     #sectionName: https
-  #hostnames:
-  #- "2143.christmas"
+  hostnames:
+  - "2143.christmas"
+  - "2143.baby"
+  - "2143.gay"
+  - "localhost"
   rules:
   - matches:
     - path:

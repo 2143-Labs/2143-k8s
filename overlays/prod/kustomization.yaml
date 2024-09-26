@@ -6,6 +6,7 @@ resources:
 - certs.yaml
 - pvc.yaml
 - https-redirect.yaml
+- misskey.yaml
 patches:
 - path: gateway.yaml
 - path: loadbalancer.yaml
