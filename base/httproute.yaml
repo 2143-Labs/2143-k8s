@@ -36,11 +36,45 @@ spec:
   - "i.2143.baby"
   - "i.2143.gay"
   - "i.brick.gay"
+  - "i.ewan.green"
   rules:
+
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /uf
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /uf
+    backendRefs:
+      # name of the service
+    - name: john2143-com
+      port: 80
+      namespace: default
+
   - matches:
     - path:
         type: PathPrefix
         value: /
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /f/
+    backendRefs:
+      # name of the service
+    - name: john2143-com
+      port: 80
+      namespace: default
+
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /f/
     filters:
     - type: URLRewrite
       urlRewrite:

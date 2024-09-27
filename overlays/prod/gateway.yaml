@@ -123,3 +123,17 @@ spec:
       - kind: Secret
         name: brick-gay-tls-key-prod
         namespace: default
+
+  - name: ewan-all
+    hostname: "*.ewan.green"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: ewan-green-tls-key-prod
+        namespace: default

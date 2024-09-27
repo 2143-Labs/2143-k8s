@@ -130,3 +130,34 @@ spec:
     name: letsencrypt-prod
     kind: Issuer
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: i.ewan.green
+spec:
+  secretName: ewan-green-tls-key-prod
+  commonName: i.ewan.green
+  dnsNames:
+    - "i.ewan.green"
+
+  duration: 2160h # 14d
+  renewBefore: 360h # 7d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
+---
