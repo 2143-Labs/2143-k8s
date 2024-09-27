@@ -2,8 +2,8 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: cafe
-  annotations:
-    cert-manager.io/issuer: letsencrypt-prod
+  #annotations:
+    #cert-manager.io/issuer: letsencrypt-prod
 spec:
   listeners:
   # certs are renewed via http challenge
@@ -15,7 +15,7 @@ spec:
         from: Same
 
   - name: https-gay
-    hostname: 2143.gay
+    hostname: "2143.gay"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -27,6 +27,20 @@ spec:
       - kind: Secret
         name: 2143-gay-tls-key-prod
         namespace: default
+  - name: https-gay-all
+    hostname: "*.2143.gay"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-gay-tls-key-prod
+        namespace: default
+
 
   - name: https-christmas
     hostname: 2143.christmas
@@ -41,9 +55,8 @@ spec:
       - kind: Secret
         name: 2143-christmas-tls-key-prod
         namespace: default
-
-  - name: https-christmas-misskey
-    hostname: misskey.2143.christmas
+  - name: https-christmas-all
+    hostname: "*.2143.christmas"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -56,6 +69,7 @@ spec:
         name: 2143-christmas-tls-key-prod
         namespace: default
 
+
   - name: https-baby
     hostname: 2143.baby
     port: 443
@@ -67,5 +81,45 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: 2143-baby-key-prod
+        name: 2143-baby-tls-key-prod
+        namespace: default
+  - name: https-baby-all
+    hostname: "*.2143.baby"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-baby-tls-key-prod
+        namespace: default
+
+  - name: brick-gay
+    hostname: brick.gay
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: brick-gay-tls-key-prod
+        namespace: default
+  - name: brick-gay-all
+    hostname: "*.brick.gay"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: brick-gay-tls-key-prod
         namespace: default

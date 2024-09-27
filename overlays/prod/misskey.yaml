@@ -9,6 +9,8 @@ spec:
     #sectionName: https
   hostnames:
   - misskey.2143.christmas
+  - misskey.2143.gay
+  - misskey.brick.gay
   rules:
   - backendRefs:
       # name of the service
