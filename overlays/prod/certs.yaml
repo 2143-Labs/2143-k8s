@@ -133,12 +133,12 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: i.ewan.green
+  name: m.ewan.green
 spec:
   secretName: ewan-green-tls-key-prod
-  commonName: i.ewan.green
+  commonName: m.ewan.green
   dnsNames:
-    - "i.ewan.green"
+    - "m.ewan.green"
 
   duration: 2160h # 14d
   renewBefore: 360h # 7d
