@@ -19,7 +19,6 @@ spec:
 
       containers:
       - name: john2143-com
-        #image: ghcr.io/john2143/john2143.com:34
         image: imagehost:latest
         imagePullPolicy: IfNotPresent
         ports:

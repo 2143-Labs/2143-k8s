@@ -13,5 +13,29 @@ spec:
     spec:
       containers:
       - name: bastion
-        image: busybox:latest
+        image: ghcr.io/john2143/better_gha_runner:latest
         command: ["sleep", "3600"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: awscli
+spec:
+  selector:
+    matchLabels:
+      app: awscli
+  template:
+    metadata:
+      labels:
+        app: awscli
+    spec:
+      volumes:
+      - name: awscli
+        emptyDir: {}
+      containers:
+      - name: awscli
+        image: amazon/aws-cli:latest
+        command: ["sleep", "3600"]
+        volumeMounts:
+        - name: awscli
+          mountPath: /data
