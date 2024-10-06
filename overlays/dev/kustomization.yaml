@@ -5,13 +5,8 @@ resources:
 - pvc.yaml
 - busybox.yaml
 patches:
-# also remove the env var "S3_ENDPOINT_URL"
-#- target:
-    #kind: Deployment
-    #name: john2143-com
-  #patch: |
-    #- op: remove
-      #path: /spec/template/spec/containers/0/env/0
+- path: deployment.yaml
+# Change the env var "FOLDER" to dev
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com

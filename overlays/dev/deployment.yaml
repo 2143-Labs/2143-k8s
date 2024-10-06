@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: john2143-com
+spec:
+  template:
+    spec:
+      containers:
+      - name: john2143-com
+        env:
+        - name: FOLDER
+          value: dev
