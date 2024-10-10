@@ -22,7 +22,7 @@ spec:
         image: imagehost:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 3000
+        - containerPort: &port 3000
         volumeMounts:
         - mountPath: /app/juushFiles
           name: data-volume
@@ -54,8 +54,22 @@ spec:
           value: "0.0.0.0"
         - name: NODE_ENV
           value: production
-        - name: NODE_TLS_REJECT_UNAUTHORIZED
-          value: "0"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 1
+          periodSeconds: 1
+          failureThreshold: 25
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          failureThreshold: 3
 
 ---
 apiVersion: v1
