@@ -100,6 +100,70 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
+  name: 2143.moe
+spec:
+  secretName: 2143-moe-tls-key-prod
+  commonName: 2143.moe
+  dnsNames:
+    - 2143.moe
+    - "i.2143.moe"
+
+  duration: 2160h # 14d
+  renewBefore: 360h # 7d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: 2143.me
+spec:
+  secretName: 2143-me-tls-key-prod
+  commonName: 2143.me
+  dnsNames:
+    - 2143.me
+    - "i.2143.me"
+
+  duration: 2160h # 14d
+  renewBefore: 360h # 7d
+
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - cert-manager
+
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
   name: brick.gay
 spec:
   secretName: brick-gay-tls-key-prod

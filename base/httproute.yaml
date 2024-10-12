@@ -10,6 +10,8 @@ spec:
   - "2143.christmas"
   - "2143.baby"
   - "2143.gay"
+  - "2143.me"
+  - "2143.moe"
   - "brick.gay"
   - "localhost"
   rules:
@@ -35,6 +37,8 @@ spec:
   - "i.2143.christmas"
   - "i.2143.baby"
   - "i.2143.gay"
+  - "i.2143.me"
+  - "i.2143.moe"
   - "i.brick.gay"
   - "m.ewan.green"
   rules:

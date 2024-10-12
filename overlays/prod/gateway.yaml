@@ -97,6 +97,60 @@ spec:
         name: 2143-baby-tls-key-prod
         namespace: default
 
+  - name: 2143.me
+    hostname: 2143.me
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-me-tls-key-prod
+        namespace: default
+  - name: 2143.me-all
+    hostname: "*.2143.me"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-me-tls-key-prod
+        namespace: default
+
+  - name: 2143.moe
+    hostname: 2143.moe
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-moe-tls-key-prod
+        namespace: default
+  - name: 2143.moe-all
+    hostname: "*.2143.moe"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-moe-tls-key-prod
+        namespace: default
+
   - name: brick-gay
     hostname: brick.gay
     port: 443

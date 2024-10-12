@@ -6,7 +6,7 @@ resources:
 - certs.yaml
 - pvc.yaml
 - https-redirect.yaml
-- misskey.yaml
+#- misskey.yaml
 patches:
 - path: gateway.yaml
 - path: loadbalancer.yaml
@@ -21,4 +21,4 @@ patches:
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "74"
+  newTag: "79"
