@@ -18,6 +18,13 @@ spec:
           claimName: files-pvc
 
       containers:
+      - name: bastion
+        image: ghcr.io/john2143/better_gha_runner:latest
+        command: ["bash", "-c", "while true; do sleep 60; done"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data/juushFiles
+
       - name: john2143-com
         image: imagehost:latest
         imagePullPolicy: IfNotPresent

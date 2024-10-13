@@ -8,4 +8,4 @@ spec:
     kind: Gateway
     name: cafe
   body:
-    maxSize: "500m"
+    maxSize: "5g"

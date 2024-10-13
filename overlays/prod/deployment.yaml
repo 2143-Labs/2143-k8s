@@ -5,12 +5,23 @@ metadata:
 spec:
   template:
     spec:
+      volumes:
+      - name: s3cmd
+        secret:
+          secretName: s3cmd-minio-f4kmfb74c6
+          items:
+            - key: s3cmd.txt
+              path: .s3cfg
       containers:
+      - name: bastion
+        volumeMounts:
+        - name: s3cmd
+          mountPath: /home/runner/
       - name: john2143-com
         env:
         - name: S3_CHUNK_SIZE
           # mb
-          value: 25
+          value: "25"
         - name: S3_CHUNK_TIMEOUT
           # how many seconds to upload the above amount of data
-          value: 120
+          value: "120"
