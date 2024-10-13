@@ -10,4 +10,5 @@ resources:
 - nginx-fabric.yaml
 - endpoint-base.yaml
 - client-settings-policy.yaml
+- bastion.yaml
 # Add the crds for gateway api
