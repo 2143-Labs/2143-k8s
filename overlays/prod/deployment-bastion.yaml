@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: john2143-com
+spec:
+  template:
+    spec:
+      volumes:
+      - name: s3cmd
+        secret:
+          secretName: s3cmd
+          items:
+            - key: s3cmd.txt
+              path: .s3cfg
+      - name: s3cmd-do
+        secret:
+          secretName: s3cmd
+          items:
+            - key: s3cmd_spaces.txt
+              path: .s3cfg
+
+      containers:
+      - name: bastion-minio
+        image: ghcr.io/john2143/better_gha_runner:latest
+        command: ["bash", "-c", "while true; do fish --debug=-error,-warning-path /scripts/upload.fish 'processed_minio' ''; sleep 10; done"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data/juushFiles/
+        - name: upload-fish
+          mountPath: /scripts/
+        - name: s3cmd
+          mountPath: /home/runner/
+        env:
+        - name: HOME
+          value: /home/runner
+
+      #- name: bastion-s3
+        #image: ghcr.io/john2143/better_gha_runner:latest
+        #command: ["bash", "-c", "while true; do fish --debug=-error,-warning-path /scripts/upload.fish 'processed_digitalocean' 'public-prod/'; sleep 10; done"]
+        #volumeMounts:
+        #- name: data-volume
+          #mountPath: /data/juushFiles/
+        #- name: upload-fish
+          #mountPath: /scripts/
+        #- name: s3cmd-do
+          #mountPath: /home/runner/
+        #env:
+        #- name: HOME
+          #value: /home/runner
+
+      - name: bastion-pruner
+        image: ghcr.io/john2143/better_gha_runner:latest
+        command: ["bash", "-c", "while true; do fish --debug=-error,-warning-path /scripts/prune.fish; sleep 10; done"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data/juushFiles/
+        - name: upload-fish
+          mountPath: /scripts/
+        env:
+        - name: HOME
+          value: /home/runner

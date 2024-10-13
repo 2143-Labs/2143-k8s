@@ -9,13 +9,18 @@ resources:
 - https-redirect.yaml
 #- misskey.yaml
 secretGenerator:
-- name: s3cmd-minio
+- name: s3cmd
   files:
   - ./s3cmd.txt
+  - ./s3cmd_spaces.txt
 patches:
 - path: gateway.yaml
 - path: loadbalancer.yaml
 - path: deployment.yaml
+- path: deployment-bastion.yaml
+  target:
+    kind: Deployment
+    name: john2143-com
 #- path: httproute.yaml
 # also remove the env var "S3_ENDPOINT_URL"
 #- target:
@@ -27,4 +32,4 @@ patches:
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "79"
+  newTag: "91"

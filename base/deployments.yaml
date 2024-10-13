@@ -16,15 +16,22 @@ spec:
       - name: data-volume
         persistentVolumeClaim:
           claimName: files-pvc
+      - name: upload-fish
+        configMap:
+          name: upload-fish
+          defaultMode: 0777
+          items:
+            - key: upload.fish
+              path: upload.fish
+            - key: prune.fish
+              path: prune.fish
+
+      #securityContext:
+        #runAsUser: 1000
+        #runAsGroup: 1000
+        #fsGroup: 1000
 
       containers:
-      - name: bastion
-        image: ghcr.io/john2143/better_gha_runner:latest
-        command: ["bash", "-c", "while true; do sleep 60; done"]
-        volumeMounts:
-        - name: data-volume
-          mountPath: /data/juushFiles
-
       - name: john2143-com
         image: imagehost:latest
         imagePullPolicy: IfNotPresent
