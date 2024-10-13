@@ -22,7 +22,15 @@ spec:
       containers:
       - name: bastion-minio
         image: ghcr.io/john2143/better_gha_runner:latest
-        command: ["bash", "-c", "while true; do fish --debug=-error,-warning-path /scripts/upload.fish 'processed_minio' ''; sleep 10; done"]
+        command:
+        - "fish"
+        - "--debug=-error,-warning-path"
+        - "-c"
+        - |
+          while true;
+            fish /scripts/upload.fish 'processed_minio' '';
+            sleep 10;
+          end
         volumeMounts:
         - name: data-volume
           mountPath: /data/juushFiles/
@@ -36,7 +44,7 @@ spec:
 
       #- name: bastion-s3
         #image: ghcr.io/john2143/better_gha_runner:latest
-        #command: ["bash", "-c", "while true; do fish --debug=-error,-warning-path /scripts/upload.fish 'processed_digitalocean' 'public-prod/'; sleep 10; done"]
+        #command: ["fish", "-c", "while true; fish --debug=-error,-warning-path /scripts/upload.fish 'processed_digitalocean' 'public-prod/'; sleep 10; end"]
         #volumeMounts:
         #- name: data-volume
           #mountPath: /data/juushFiles/
@@ -50,7 +58,16 @@ spec:
 
       - name: bastion-pruner
         image: ghcr.io/john2143/better_gha_runner:latest
-        command: ["bash", "-c", "while true; do fish --debug=-error,-warning-path /scripts/prune.fish; sleep 10; done"]
+        # 60 -> number of minutes to keep in hot storage
+        command:
+        - "fish"
+        - "--debug=-error,-warning-path"
+        - "-c"
+        - |
+          while true;
+            /scripts/prune.fish '60'
+            sleep 60;
+          end
         volumeMounts:
         - name: data-volume
           mountPath: /data/juushFiles/

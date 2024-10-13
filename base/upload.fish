@@ -17,8 +17,13 @@ sudo mkdir -p $dataDir/$processed_subfolder
 sudo chown -R runner:runner $dataDir/$processed_subfolder
 sudo rm -rf $dataDir/lost+found
 
-for file in (find . -maxdepth 1 -type f ! -name ".dl");
+for file in (find . -maxdepth 1 -type f);
     set file (basename $file);
+
+    # if ends with .dl, skip
+    if string match -q "*.dl" $file
+        continue
+    end
 
     if test -f $dataDir/$processed_subfolder/$file
         #echo "$file has already been processed, skipping..."
