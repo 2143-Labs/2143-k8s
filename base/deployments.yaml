@@ -25,6 +25,8 @@ spec:
               path: upload.fish
             - key: prune.fish
               path: prune.fish
+            - key: shared.fish
+              path: shared.fish
 
       #securityContext:
         #runAsUser: 1000

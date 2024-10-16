@@ -108,7 +108,7 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: 2143-me-tls-key-prod
+        name: 2143-me-tls-key-prod2
         namespace: default
   - name: 2143.me-all
     hostname: "*.2143.me"
@@ -121,7 +121,7 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: 2143-me-tls-key-prod
+        name: 2143-me-tls-key-prod2
         namespace: default
 
   - name: 2143.moe

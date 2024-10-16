@@ -134,7 +134,7 @@ kind: Certificate
 metadata:
   name: 2143.me
 spec:
-  secretName: 2143-me-tls-key-prod
+  secretName: 2143-me-tls-key-prod2
   commonName: 2143.me
   dnsNames:
     - 2143.me
