@@ -28,7 +28,7 @@ spec:
         - "-c"
         - |
           while true;
-            fish /scripts/upload.fish 'processed_minio' '';
+            /scripts/upload.fish 'processed_minio' '';
             sleep 10;
           end
         volumeMounts:

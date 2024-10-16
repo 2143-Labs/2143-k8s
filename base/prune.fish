@@ -1,6 +1,6 @@
 #!/usr/bin/env fish
 
-source shared.fish
+source /scripts/shared.fish
 set age_minutes $argv[1]
 
 function prune_precheck

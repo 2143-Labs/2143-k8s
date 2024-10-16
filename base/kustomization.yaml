@@ -5,6 +5,7 @@ configMapGenerator:
   files:
   - upload.fish
   - prune.fish
+  - shared.fish
 resources:
 #- https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric/0ade9ede5c5be1eb7137308c08c7c17608515ca8/deploy/crds.yaml
 #- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard

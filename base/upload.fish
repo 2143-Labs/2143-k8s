@@ -1,7 +1,6 @@
 #!/usr/bin/env fish
 
-sorce shared.fish
-
+source /scripts/shared.fish
 # This is the local subfolder where the processed file markers are stored:
 #   - processed_minio
 #   - processed_digitalocean
@@ -12,7 +11,7 @@ set s3_subfolder $argv[2]
 cd $dataDir
 # Use s3cmd to upload files to S3 backup
 
-echo "Checking for new files "(date)
+echo "Checking for new files in $dataDir: "(date)
 
 sudo mkdir -p $dataDir/$processed_subfolder
 sudo chown -R runner:runner $dataDir/$processed_subfolder
