@@ -14,12 +14,17 @@ spec:
       name: cafe-tls-private-key-staging
 
     solvers:
-    - http01:
-        gatewayHTTPRoute:
-          parentRefs:
-            - name: cafe
-              namespace: default
-              kind: Gateway
+    - dns01:
+        digitalocean:
+          tokenSecretRef:
+            name: digitalocean-dns
+            key: access-token
+    #- http01:
+        #gatewayHTTPRoute:
+          #parentRefs:
+            #- name: cafe
+              #namespace: default
+              #kind: Gateway
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -37,9 +42,14 @@ spec:
       name: cafe-tls-private-key-prod
 
     solvers:
-    - http01:
-        gatewayHTTPRoute:
-          parentRefs:
-            - name: cafe
-              namespace: default
-              kind: Gateway
+    - dns01:
+        digitalocean:
+          tokenSecretRef:
+            name: digitalocean-dns
+            key: access-token
+    #- http01:
+        #gatewayHTTPRoute:
+          #parentRefs:
+            #- name: cafe
+              #namespace: default
+              #kind: Gateway

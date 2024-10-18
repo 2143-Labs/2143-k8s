@@ -1,0 +1,30 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: cafe-nonprod
+  annotations:
+    cert-manager.io/issuer: letsencrypt-staging
+spec:
+  gatewayClassName: nginx
+  listeners:
+  # certs are renewed via http challenge
+  - name: http
+    port: 80
+    protocol: HTTP
+    allowedRoutes:
+      namespaces:
+        from: Same
+
+  - name: poe-sale
+    hostname: poe.sale
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: poe-sale-tls-key-nonprod
+        namespace: default

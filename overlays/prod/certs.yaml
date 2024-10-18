@@ -1,229 +1,229 @@
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: 2143.gay
-spec:
-  secretName: 2143-gay-tls-key-prod
-  commonName: 2143.gay
-  dnsNames:
-    - 2143.gay
-    - "i.2143.gay"
-    - "misskey.2143.gay"
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: 2143.gay
+#spec:
+  #secretName: 2143-gay-tls-key-prod
+  #commonName: 2143.gay
+  #dnsNames:
+    #- 2143.gay
+    #- "i.2143.gay"
+    #- "misskey.2143.gay"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: 2143.christmas
-spec:
-  secretName: 2143-christmas-tls-key-prod
-  commonName: 2143.christmas
-  dnsNames:
-    - 2143.christmas
-    - "i.2143.christmas"
-    - "misskey.2143.christmas"
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: 2143.christmas
+#spec:
+  #secretName: 2143-christmas-tls-key-prod
+  #commonName: 2143.christmas
+  #dnsNames:
+    #- 2143.christmas
+    #- "i.2143.christmas"
+    #- "misskey.2143.christmas"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: 2143.baby
-spec:
-  secretName: 2143-baby-tls-key-prod
-  commonName: 2143.baby
-  dnsNames:
-    - 2143.baby
-    - "i.2143.baby"
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: 2143.baby
+#spec:
+  #secretName: 2143-baby-tls-key-prod
+  #commonName: 2143.baby
+  #dnsNames:
+    #- 2143.baby
+    #- "i.2143.baby"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: 2143.moe
-spec:
-  secretName: 2143-moe-tls-key-prod
-  commonName: 2143.moe
-  dnsNames:
-    - 2143.moe
-    - "i.2143.moe"
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: 2143.moe
+#spec:
+  #secretName: 2143-moe-tls-key-prod
+  #commonName: 2143.moe
+  #dnsNames:
+    #- 2143.moe
+    #- "i.2143.moe"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: 2143.me
-spec:
-  secretName: 2143-me-tls-key-prod2
-  commonName: 2143.me
-  dnsNames:
-    - 2143.me
-    - "i.2143.me"
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: 2143.me
+#spec:
+  #secretName: 2143-me-tls-key-prod
+  #commonName: 2143.me
+  #dnsNames:
+    #- 2143.me
+    #- "i.2143.me"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: brick.gay
-spec:
-  secretName: brick-gay-tls-key-prod
-  commonName: brick.gay
-  dnsNames:
-    - brick.gay
-    - "i.brick.gay"
-    - "misskey.brick.gay"
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: brick.gay
+#spec:
+  #secretName: brick-gay-tls-key-prod
+  #commonName: brick.gay
+  #dnsNames:
+    #- brick.gay
+    #- "i.brick.gay"
+    #- "misskey.brick.gay"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: m.ewan.green
-spec:
-  secretName: ewan-green-tls-key-prod
-  commonName: m.ewan.green
-  dnsNames:
-    - "m.ewan.green"
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+  #name: m.ewan.green
+#spec:
+  #secretName: ewan-green-tls-key-prod
+  #commonName: m.ewan.green
+  #dnsNames:
+    #- "m.ewan.green"
 
-  duration: 2160h # 14d
-  renewBefore: 360h # 7d
+  #duration: 2160h # 14d
+  #renewBefore: 360h # 7d
 
-  isCA: false
-  usages:
-    - server auth
-    - client auth
+  #isCA: false
+  #usages:
+    #- server auth
+    #- client auth
 
-  subject:
-    organizations:
-      - cert-manager
+  #subject:
+    #organizations:
+      #- cert-manager
 
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 4096
+  #privateKey:
+    #algorithm: RSA
+    #encoding: PKCS1
+    #size: 4096
 
-  issuerRef:
-    name: letsencrypt-prod
-    kind: Issuer
+  #issuerRef:
+    #name: letsencrypt-prod
+    #kind: Issuer
 #---
 #apiVersion: cert-manager.io/v1
 #kind: Certificate
@@ -255,4 +255,4 @@ spec:
   #issuerRef:
     #name: letsencrypt-prod
     #kind: Issuer
----
+#---

@@ -8,6 +8,7 @@ resources:
 - pvc.yaml
 - https-redirect.yaml
 - deployment-redirector.yaml
+- nonprod-gateway.yaml
 #- misskey.yaml
 secretGenerator:
 - name: s3cmd
@@ -18,6 +19,7 @@ patches:
 - path: gateway.yaml
 - path: loadbalancer.yaml
 - path: deployment.yaml
+- path: httproute.yaml
 - path: deployment-bastion.yaml
   target:
     kind: Deployment

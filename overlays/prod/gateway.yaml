@@ -2,8 +2,8 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: cafe
-  #annotations:
-    #cert-manager.io/issuer: letsencrypt-prod
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
 spec:
   listeners:
   # certs are renewed via http challenge
@@ -13,48 +13,6 @@ spec:
     allowedRoutes:
       namespaces:
         from: Same
-
-  - name: poe-sale
-    hostname: poe.sale
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: poe-sale-tls-key-prod
-        namespace: default
-
-  - name: https-gay
-    hostname: "2143.gay"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-gay-tls-key-prod
-        namespace: default
-  - name: https-gay-all
-    hostname: "*.2143.gay"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-gay-tls-key-prod
-        namespace: default
-
 
   - name: https-christmas
     hostname: 2143.christmas
@@ -111,33 +69,6 @@ spec:
         name: 2143-baby-tls-key-prod
         namespace: default
 
-  - name: 2143.me
-    hostname: 2143.me
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-me-tls-key-prod2
-        namespace: default
-  - name: 2143.me-all
-    hostname: "*.2143.me"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-me-tls-key-prod2
-        namespace: default
-
   - name: 2143.moe
     hostname: 2143.moe
     port: 443
@@ -192,8 +123,8 @@ spec:
         name: brick-gay-tls-key-prod
         namespace: default
 
-  - name: ewan-all
-    hostname: "*.ewan.green"
+  - name: ewan-m
+    hostname: "m.ewan.green"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -204,4 +135,58 @@ spec:
       certificateRefs:
       - kind: Secret
         name: ewan-green-tls-key-prod
+        namespace: default
+
+  - name: https-gay
+    hostname: "2143.gay"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-gay-tls-key-prod
+        namespace: default
+  - name: https-gay-all
+    hostname: "*.2143.gay"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-gay-tls-key-prod
+        namespace: default
+
+  - name: 2143.me
+    hostname: 2143.me
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-me-tls-key-prod
+        namespace: default
+  - name: 2143.me-all
+    hostname: "*.2143.me"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 2143-me-tls-key-prod
         namespace: default
