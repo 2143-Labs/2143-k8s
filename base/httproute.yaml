@@ -5,15 +5,13 @@ metadata:
 spec:
   parentRefs:
   - name: cafe
-    #sectionName: https
-  #- name: cafe-nonprod
-    #sectionName: https
   hostnames:
   - "2143.christmas"
   - "2143.baby"
   - "2143.gay"
   - "2143.me"
   - "2143.moe"
+  - "prod.john2143.com"
   - "brick.gay"
   - "localhost"
   rules:
@@ -34,15 +32,13 @@ metadata:
 spec:
   parentRefs:
   - name: cafe
-    #sectionName: https
-  #- name: cafe-nonprod
-    #sectionName: https
   hostnames:
   - "i.2143.christmas"
   - "i.2143.baby"
   - "i.2143.gay"
   - "i.2143.me"
   - "i.2143.moe"
+  - "i.prod.john2143.com"
   - "i.brick.gay"
   - "m.ewan.green"
   rules:

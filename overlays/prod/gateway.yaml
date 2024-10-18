@@ -190,3 +190,17 @@ spec:
       - kind: Secret
         name: 2143-me-tls-key-prod
         namespace: default
+
+  - name: john2143.com-prod
+    hostname: "prod.john2143.com"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: john2143-com-tls-key-prod
+        namespace: default
