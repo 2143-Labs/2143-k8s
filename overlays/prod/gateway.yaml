@@ -14,6 +14,20 @@ spec:
       namespaces:
         from: Same
 
+  - name: poe-sale
+    hostname: poe.sale
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: poe-sale-tls-key-prod
+        namespace: default
+
   - name: https-gay
     hostname: "2143.gay"
     port: 443

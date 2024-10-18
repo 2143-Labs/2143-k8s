@@ -7,6 +7,7 @@ resources:
 - certs.yaml
 - pvc.yaml
 - https-redirect.yaml
+- deployment-redirector.yaml
 #- misskey.yaml
 secretGenerator:
 - name: s3cmd
@@ -32,4 +33,4 @@ patches:
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "102"
+  newTag: "105"
