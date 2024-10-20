@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: john2143-com
+        servicegroup: "mine"
     spec:
       volumes:
       - name: data-volume
@@ -130,6 +131,7 @@ spec:
     metadata:
       labels:
         app: mongo
+        servicegroup: "mine"
     spec:
       volumes:
       - name: mongodata

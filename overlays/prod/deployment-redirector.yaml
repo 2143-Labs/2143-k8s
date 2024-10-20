@@ -10,6 +10,7 @@ spec:
     metadata:
       labels:
         app: *app
+        servicegroup: "mine"
     spec:
       containers:
       - name: redirector
