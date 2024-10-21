@@ -88,6 +88,14 @@ spec:
         - name: NODE_ENV
           value: production
 
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "10m"
+          limits:
+            memory: "200Mi"
+            cpu: "1000m"
+
         livenessProbe:
           httpGet:
             path: /health
@@ -155,6 +163,11 @@ spec:
         volumeMounts:
           - mountPath: /data/db
             name: mongodata
+
+        resources:
+          requests:
+            memory: "330Mi"
+            cpu: "50m"
 ---
 apiVersion: v1
 kind: Service
