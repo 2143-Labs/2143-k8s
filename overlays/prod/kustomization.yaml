@@ -9,6 +9,7 @@ resources:
 - https-redirect.yaml
 - deployment-redirector.yaml
 - nonprod-gateway.yaml
+- grafana-routes.yaml
 #- misskey.yaml
 secretGenerator:
 - name: s3cmd
@@ -35,4 +36,4 @@ patches:
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "105"
+  newTag: "106"
