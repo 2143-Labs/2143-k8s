@@ -204,3 +204,57 @@ spec:
       - kind: Secret
         name: john2143-com-tls-key-prod
         namespace: default
+
+  - name: 9s.pics
+    hostname: 9s.pics
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 9s.pics-tls-key-prod
+        namespace: default
+  - name: 9s.pics-all
+    hostname: "*.9s.pics"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 9s.pics-tls-key-prod
+        namespace: default
+
+  - name: 0x2b.pics
+    hostname: 0x2b.pics
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 0x2b.pics-tls-key-prod
+        namespace: default
+  - name: 0x2b.pics-all
+    hostname: "*.0x2b.pics"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: 0x2b.pics-tls-key-prod
+        namespace: default

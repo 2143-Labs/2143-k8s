@@ -37,4 +37,4 @@ patches:
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "107"
+  newTag: "109"

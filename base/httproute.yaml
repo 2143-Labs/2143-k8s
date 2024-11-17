@@ -13,6 +13,8 @@ spec:
   - "2143.moe"
   - "prod.john2143.com"
   - "brick.gay"
+  - "9s.pics"
+  - "0x2b.pics"
   - "localhost"
   rules:
   - matches:
@@ -40,6 +42,8 @@ spec:
   - "i.2143.moe"
   - "i.prod.john2143.com"
   - "i.brick.gay"
+  - "i.9s.pics"
+  - "i.0x2b.pics"
   - "m.ewan.green"
   rules:
 
