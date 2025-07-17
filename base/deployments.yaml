@@ -228,14 +228,14 @@ spec:
         resources:
           requests:
             memory: "100Mi"
-            cpu: "10m"
+            cpu: "200m"
           limits:
-            memory: "200Mi"
+            memory: "500Mi"
             cpu: "1000m"
 
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: *port
           initialDelaySeconds: 1
           periodSeconds: 1
@@ -243,7 +243,7 @@ spec:
 
         readinessProbe:
           httpGet:
-            path: /
+            path: /health
             port: *port
           initialDelaySeconds: 1
           periodSeconds: 5
@@ -308,10 +308,13 @@ spec:
           name: postgres-ofpdata
           subPath: ofp-data/
 
-        #resources:
-          #requests:
-            #memory: "330Mi"
-            #cpu: "50m"
+        resources:
+          limits:
+            memory: "1000Mi"
+            cpu: "1000m"
+          requests:
+            cpu: "500m"
+            memory: "500Mi"
 ---
 apiVersion: v1
 kind: Service
