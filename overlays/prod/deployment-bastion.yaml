@@ -65,7 +65,7 @@ spec:
         - "-c"
         - |
           while true;
-            /scripts/prune.fish '60'
+            /scripts/prune.fish '1440';
             sleep 60;
           end
         volumeMounts:

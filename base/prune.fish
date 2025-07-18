@@ -15,12 +15,11 @@ end
 
 prune_precheck
 
+cd $dataDir
 # Look for all files and delete them. This includes .dl files too
 # (%T@ %p) is the unix timestamp and the file path
 # {print $NF} prints the last column
-set files (find . -maxdepth 1 -type f ! -mmin "+$age_minutes" -printf "%T@ %p\n" | sort -n | awk '{print $NF}')
-
-set might_prune ""
+set files (find . -maxdepth 1 -type f -mmin "+$age_minutes" -printf "%T@ %p\n" | sort -n | awk '{print $NF}')
 
 for file in $files
     # if a file exists, test -f will return 0
@@ -32,9 +31,22 @@ for file in $files
         #if test $has_do -eq 0
             #echo "Deleting $file : BOTH MINIO and DO backup"
         #end
-        echo "Deleting $file : Has minio backup"
+        #echo "Will delete $file : Has minio backup"
         # Add to might_prune array
         set might_prune $might_prune $file
         #sudo rm $file
     end
 end
+
+set count (count $might_prune)
+if test $count -gt 0
+    echo "Deleting $count files older than $age_minutes minutes."
+    sudo rm $might_prune
+    echo "Deleted $count. Deleting minio backup tags now."
+    cd $dataDir/processed_minio
+    sudo rm $might_prune
+else
+    echo "No files to delete."
+end
+
+echo "Pruning complete."
