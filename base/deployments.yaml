@@ -223,7 +223,7 @@ spec:
               #name: openfront-pro-creds
               #key: COOKIE
         - name: OPENFRONT_LOBBY_URL
-          value: https://blue.openfront.io/api/public_lobbies
+          value: https://green.openfront.io/api/public_lobbies
 
         resources:
           requests:
