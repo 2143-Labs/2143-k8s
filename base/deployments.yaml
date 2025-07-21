@@ -185,6 +185,56 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: openfront-pro-simulation-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openfront-pro-simulation-worker
+  template:
+    metadata:
+      labels:
+        app: openfront-pro-simulation-worker
+        servicegroup: "mine"
+    spec:
+      containers:
+      - name: openfront-pro-simulation-worker
+        image: openfrontpro-sim:latest
+        imagePullPolicy: Always
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: openfront-pro-db
+              key: DATABASE_URL
+
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "200m"
+          limits:
+            memory: "500Mi"
+            cpu: "1000m"
+
+        #livenessProbe:
+          #httpGet:
+            #path: /health
+            #port: *port
+          #initialDelaySeconds: 1
+          #periodSeconds: 1
+          #failureThreshold: 25
+
+        #readinessProbe:
+          #httpGet:
+            #path: /health
+            #port: *port
+          #initialDelaySeconds: 1
+          #periodSeconds: 5
+          #failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: openfront-pro
 spec:
   replicas: 1
@@ -222,8 +272,10 @@ spec:
             #secretKeyRef:
               #name: openfront-pro-creds
               #key: COOKIE
+        #- name: DISABLE_TASKS
+          #value: "look-for-lobby-games"
         - name: OPENFRONT_LOBBY_URL
-          value: https://green.openfront.io/api/public_lobbies
+          value: https://openfront.io/api/public_lobbies
 
         resources:
           requests:

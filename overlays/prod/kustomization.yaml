@@ -41,4 +41,8 @@ images:
 - name: openfrontpro:latest
   newName: ghcr.io/john2143/openfronter
   #newTag: openfronter-rs-20250717_0403
+  #newTag: openfronter-rs-20250720_1916
   newTag: openfronter-rs-latest
+- name: openfrontpro-sim:latest
+  newName: ghcr.io/john2143/openfronter
+  newTag: openfronter-sim-latest
