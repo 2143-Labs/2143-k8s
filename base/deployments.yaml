@@ -187,7 +187,6 @@ kind: Deployment
 metadata:
   name: openfront-pro-simulation-worker
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: openfront-pro-simulation-worker
@@ -210,11 +209,11 @@ spec:
 
         resources:
           requests:
-            memory: "100Mi"
-            cpu: "200m"
+            memory: "800Mi"
+            cpu: "300m"
           limits:
-            memory: "500Mi"
-            cpu: "1000m"
+            memory: "1000Mi"
+            cpu: "500m"
 
         #livenessProbe:
           #httpGet:
@@ -261,8 +260,6 @@ spec:
               key: DATABASE_URL
         - name: PORT
           value: "3000"
-        - name: USERAGENT
-          value: "openfront-pro-crawler"
         - name: DISCORD_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
@@ -275,6 +272,9 @@ spec:
               key: DISCORD_CLIENT_ID
         - name: DISCORD_REDIRECT_URI
           value: https://openfront.pro/oauth/discord/callback
+        - name: USERAGENT
+          value: "openfront-pro-crawler"
+        #- name: USERAGENT
           #valueFrom:
             #secretKeyRef:
               #name: openfront-pro-creds
@@ -284,15 +284,15 @@ spec:
             #secretKeyRef:
               #name: openfront-pro-creds
               #key: COOKIE
-        #- name: DISABLE_TASKS
-          #value: "look-for-lobby-games"
+        - name: DISABLE_TASKS
+          value: "look-for-openfront-lobbies"
         - name: OPENFRONT_LOBBY_URL
           value: https://openfront.io/api/public_lobbies
 
         resources:
           requests:
-            memory: "100Mi"
-            cpu: "200m"
+            memory: "300Mi"
+            cpu: "300m"
           limits:
             memory: "500Mi"
             cpu: "1000m"
@@ -374,11 +374,11 @@ spec:
 
         resources:
           limits:
-            memory: "1000Mi"
-            cpu: "1000m"
+            memory: "2000Mi"
+            cpu: "1500m"
           requests:
-            cpu: "500m"
-            memory: "500Mi"
+            cpu: "1000m"
+            memory: "2000Mi"
 ---
 apiVersion: v1
 kind: Service

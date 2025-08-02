@@ -38,11 +38,10 @@ images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
   newTag: "109"
+
 - name: openfrontpro:latest
-  newName: ghcr.io/john2143/openfronter
-  #newTag: openfronter-rs-20250717_0403
-  #newTag: openfronter-rs-20250720_1916
-  newTag: openfronter-rs-latest
+  newName: ghcr.io/2143-labs/openfrontpro-rs
+  newTag: openfrontpro-latest
 - name: openfrontpro-sim:latest
-  newName: ghcr.io/john2143/openfronter
-  newTag: openfronter-sim-latest
+  newName: ghcr.io/2143-labs/openfrontpro-sim
+  newTag: openfrontpro-latest
