@@ -24,11 +24,11 @@ spec:
         env:
         - name: PORT
           value: "3000"
-        - name: DISCORD_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: openfront-api-discordbot-creds
-              key: DISCORD_TOKEN
+        #- name: DISCORD_TOKEN
+          #valueFrom:
+            #secretKeyRef:
+              #name: openfront-api-discordbot-creds
+              #key: DISCORD_TOKEN
 
         resources:
           requests:
@@ -90,12 +90,11 @@ spec:
       namespace: tk
 ---
 
-
-
 ### Namespaces, service accounts, roles, and role bindings ###
 
 
 
+---
 # Add the namspace "tk"
 apiVersion: v1
 kind: Namespace
@@ -104,6 +103,22 @@ metadata:
   labels:
     name: tk
     servicegroup: "mine"
+---
+# We need a referencegrant because cafe is in the default namespace and the service is in tk namespace
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: openfront-api-discordbot-grant
+  namespace: tk
+spec:
+  from:
+  - kind: HTTPRoute
+    group: gateway.networking.k8s.io
+    namespace: default
+  to:
+  - kind: Service
+    group: ""
+
 # This is the service account for the deployment
 ---
 apiVersion: v1
