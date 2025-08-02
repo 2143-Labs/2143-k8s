@@ -45,3 +45,7 @@ images:
 - name: openfrontpro-sim:latest
   newName: ghcr.io/2143-labs/openfrontpro-sim
   newTag: openfrontpro-latest
+
+- name: bot:latest
+  newName: ghcr.io/2143-labs/openfront-api-discordbot
+  newTag: openfront-api-discordbot-latest

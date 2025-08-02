@@ -11,6 +11,8 @@ resources:
 #- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard
 #- github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/experimental
 - deployments.yaml
+- deployments-openfrontpro.yaml
+- deployments-openfront-discordbot.yaml
 - gateway.yaml
 - httproute.yaml
 - nginx-fabric.yaml
