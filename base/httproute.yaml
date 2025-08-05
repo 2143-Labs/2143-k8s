@@ -1,6 +1,26 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
+  name: openfront-pro-analysis-api
+spec:
+  parentRefs:
+  - name: cafe
+  hostnames:
+  - "analysis.openfront.pro"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+      # name of the service
+    - name: openfront-pro-simulation-api
+      port: 80
+      namespace: default
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
   name: openfront-pro
 spec:
   parentRefs:

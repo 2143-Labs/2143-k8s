@@ -1,6 +1,61 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: openfront-pro-simulation-api
+spec:
+  selector:
+    matchLabels:
+      app: openfront-pro-simulation-api
+  template:
+    metadata:
+      labels:
+        app: openfront-pro-simulation-api
+        servicegroup: "mine"
+    spec:
+      containers:
+      - name: openfront-pro-simulation-api
+        image: openfrontpro-sim:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: &port 3000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: openfront-pro-db
+              key: DATABASE_URL
+        - name: PORT
+          value: "3000"
+        - name: RUN_SERVER
+          value: "true"
+
+        resources:
+          requests:
+            memory: "800Mi"
+            cpu: "300m"
+          limits:
+            memory: "1000Mi"
+            cpu: "500m"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          failureThreshold: 25
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: openfront-pro-simulation-worker
 spec:
   selector:
@@ -107,10 +162,10 @@ spec:
 
         resources:
           requests:
-            memory: "300Mi"
-            cpu: "300m"
+            memory: "700Mi"
+            cpu: "1000m"
           limits:
-            memory: "500Mi"
+            memory: "1000Mi"
             cpu: "1000m"
 
         livenessProbe:
@@ -132,6 +187,19 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: openfront-pro-simulation-api
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: openfront-pro-simulation-api
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: openfront-pro
 spec:
   ports:
@@ -142,6 +210,7 @@ spec:
   selector:
     app: openfront-pro
 ---
+
 
 apiVersion: apps/v1
 kind: Deployment
