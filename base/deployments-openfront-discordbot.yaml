@@ -24,11 +24,11 @@ spec:
         env:
         - name: PORT
           value: "3000"
-        #- name: DISCORD_TOKEN
-          #valueFrom:
-            #secretKeyRef:
-              #name: openfront-api-discordbot-creds
-              #key: DISCORD_TOKEN
+        - name: DISCORD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: openfront-api-discordbot-creds
+              key: DISCORD_TOKEN
 
         resources:
           requests:

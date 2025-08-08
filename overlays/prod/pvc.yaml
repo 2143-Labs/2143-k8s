@@ -22,15 +22,15 @@ spec:
     requests:
       storage: 2Gi
   storageClassName: do-block-storage-retain
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-ofp-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 50Gi
-  storageClassName: do-block-storage-retain
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+  #name: postgres-ofp-pvc
+#spec:
+  #accessModes:
+    #- ReadWriteOnce
+  #resources:
+    #requests:
+      #storage: 50Gi
+  #storageClassName: do-block-storage-retain
