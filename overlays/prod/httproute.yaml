@@ -4,8 +4,8 @@ metadata:
   name: john2143-com-normal
 spec:
   parentRefs:
-  - name: cafe
-  - name: cafe-nonprod
+  - name: apps-gateway
+  #- name: apps-gateway-nonprod
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -13,6 +13,6 @@ metadata:
   name: john2143-com-i-prefix
 spec:
   parentRefs:
-  - name: cafe
-  - name: cafe-nonprod
+  - name: apps-gateway
+  #- name: apps-gateway-nonprod
 

@@ -5,7 +5,7 @@ metadata:
   name: misskey
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
     #sectionName: https
   hostnames:
   - misskey.2143.christmas

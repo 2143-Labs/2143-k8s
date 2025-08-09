@@ -1,11 +1,11 @@
 apiVersion: gateway.nginx.org/v1alpha1
 kind: ClientSettingsPolicy
 metadata:
-  name: cafe-client-settings
+  name: apps-gateway-client-settings
 spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: Gateway
-    name: cafe
+    name: apps-gateway
   body:
     maxSize: "5g"

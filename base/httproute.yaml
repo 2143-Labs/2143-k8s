@@ -4,7 +4,7 @@ metadata:
   name: openfront-pro-analysis-api
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
   hostnames:
   - "analysis.openfront.pro"
   rules:
@@ -24,7 +24,7 @@ metadata:
   name: openfront-pro
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
   hostnames:
   - "openfront.pro"
   - "api.openfront.pro"
@@ -45,7 +45,7 @@ metadata:
   name: john2143-com-normal
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
   hostnames:
   - "2143.christmas"
   - "2143.baby"
@@ -74,7 +74,7 @@ metadata:
   name: john2143-com-i-prefix
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
   hostnames:
   - "i.2143.christmas"
   - "i.2143.baby"

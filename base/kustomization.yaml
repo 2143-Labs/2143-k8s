@@ -15,7 +15,7 @@ resources:
 - deployments-openfront-discordbot.yaml
 - gateway.yaml
 - httproute.yaml
-- nginx-fabric.yaml
 - endpoint-base.yaml
 - client-settings-policy.yaml
+#- openfront-pro-timeouts-proxy.yaml
 # Add the crds for gateway api

@@ -75,7 +75,7 @@ metadata:
   name: openfront-api-discordbot
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
   hostnames:
   - "tkbot.openfront.pro"
   rules:

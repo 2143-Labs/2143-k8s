@@ -1,17 +1,17 @@
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-gateway
-  namespace: nginx-gateway
-  annotations:
-    # Pass real client IP address in X-Forwarded-For Header
-    # service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
-    service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
-spec:
-  externalTrafficPolicy: Local
-  internalTrafficPolicy: Cluster
-  selector:
-    app.kubernetes.io/instance: nginx-gateway
-    app.kubernetes.io/name: nginx-gateway
-  type: LoadBalancer
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+  #name: cafe-gateway-lb
+  #namespace: default
+  #annotations:
+    ## Pass real client IP address in X-Forwarded-For Header
+    ## service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+    #service.beta.kubernetes.io/do-loadbalancer-size-unit: "1"
+#spec:
+  #externalTrafficPolicy: Local
+  #internalTrafficPolicy: Cluster
+  #selector:
+    #app.kubernetes.io/instance: nginx-gateway
+    #app.kubernetes.io/name: nginx-gateway
+  #type: LoadBalancer

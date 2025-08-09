@@ -1,7 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: cafe
+  name: apps-gateway
   annotations:
     cert-manager.io/issuer: letsencrypt-prod
 spec:
@@ -14,60 +14,60 @@ spec:
       namespaces:
         from: Same
 
-  - name: https-christmas
-    hostname: 2143.christmas
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-christmas-tls-key-prod
-        namespace: default
-  - name: https-christmas-all
-    hostname: "*.2143.christmas"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-christmas-tls-key-prod
-        namespace: default
+  #- name: https-christmas
+    #hostname: 2143.christmas
+    #port: 443
+    #protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: Same
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: 2143-christmas-tls-key-prod
+        #namespace: default
+  #- name: https-christmas-all
+    #hostname: "*.2143.christmas"
+    #port: 443
+    #protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: Same
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: 2143-christmas-tls-key-prod
+        #namespace: default
 
 
-  - name: https-baby
-    hostname: 2143.baby
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-baby-tls-key-prod
-        namespace: default
-  - name: https-baby-all
-    hostname: "*.2143.baby"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: 2143-baby-tls-key-prod
-        namespace: default
+  #- name: https-baby
+    #hostname: 2143.baby
+    #port: 443
+    #protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: Same
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: 2143-baby-tls-key-prod
+        #namespace: default
+  #- name: https-baby-all
+    #hostname: "*.2143.baby"
+    #port: 443
+    #protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: Same
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: 2143-baby-tls-key-prod
+        #namespace: default
 
   - name: 2143.moe
     hostname: 2143.moe
@@ -123,19 +123,19 @@ spec:
         name: brick-gay-tls-key-prod
         namespace: default
 
-  - name: ewan-m
-    hostname: "m.ewan.green"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: Same
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - kind: Secret
-        name: ewan-green-tls-key-prod
-        namespace: default
+  #- name: ewan-m
+    #hostname: "m.ewan.green"
+    #port: 443
+    #protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: Same
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: ewan-green-tls-key-prod
+        #namespace: default
 
   - name: https-gay
     hostname: "2143.gay"
@@ -285,3 +285,33 @@ spec:
       - kind: Secret
         name: openfront-pro-tls-key-prod
         namespace: default
+
+  - name: poe-sale
+    hostname: poe.sale
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: poe-sale-tls-key-prod
+        namespace: default
+
+  #- name: poe2-sale
+    #hostname: poe2.sale
+    #port: 443
+    #protocol: HTTPS
+    #allowedRoutes:
+      #namespaces:
+        #from: Same
+    #tls:
+      #mode: Terminate
+      #certificateRefs:
+      #- kind: Secret
+        #name: poe2-sale-tls-key-prod
+        #namespace: default
+
+

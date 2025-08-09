@@ -4,7 +4,7 @@ metadata:
   name: grafana.external
 spec:
   parentRefs:
-  - name: cafe
+  - name: apps-gateway
   hostnames:
   - "grafana.2143.me"
   - "grafana.2143.moe"
