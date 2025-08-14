@@ -29,6 +29,12 @@ spec:
             secretKeyRef:
               name: openfront-api-discordbot-creds
               key: DISCORD_TOKEN
+        - name: CLIENT_ID
+          value: "1399816018464870572"
+        - name: ALERT_CHANNEL_ID
+          value: "1399817136213327965"
+        - name: CHANNEL_ID_INFOBOARD
+          value: "1404272671088316558"
 
         resources:
           requests:
@@ -42,9 +48,9 @@ spec:
           httpGet:
             path: /ping
             port: *port
-          initialDelaySeconds: 1
-          periodSeconds: 1
-          failureThreshold: 25
+          initialDelaySeconds: 30
+          periodSeconds: 2
+          failureThreshold: 3
 
         readinessProbe:
           httpGet:
