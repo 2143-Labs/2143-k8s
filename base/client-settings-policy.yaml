@@ -9,3 +9,4 @@ spec:
     name: apps-gateway
   body:
     maxSize: "5g"
+    timeout: "120s"
