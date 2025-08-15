@@ -35,7 +35,11 @@ spec:
           value: "1399817136213327965"
         - name: CHANNEL_ID_INFOBOARD
           value: "1404272671088316558"
-
+        - name: SUPABASE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: supabase-db
+              key: token
         resources:
           requests:
             memory: "100Mi"
