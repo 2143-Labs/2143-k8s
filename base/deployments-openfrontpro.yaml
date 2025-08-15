@@ -155,8 +155,8 @@ spec:
             #secretKeyRef:
               #name: openfront-pro-creds
               #key: COOKIE
-        - name: DISABLE_TASKS
-          value: "look-for-openfront-lobbies"
+        #- name: DISABLE_TASKS
+          #value: "look-for-openfront-lobbies"
         - name: OPENFRONT_LOBBY_URL
           value: https://openfront.io/api/public_lobbies
 
