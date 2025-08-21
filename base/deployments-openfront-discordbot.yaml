@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+tokenkeniVersion: apps/v1
 kind: Deployment
 metadata:
   name: openfront-api-discordbot
@@ -40,6 +40,12 @@ spec:
             secretKeyRef:
               name: supabase-db
               key: token
+        - name: ANALYSIS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: analysis
+              key: token
+        
         resources:
           requests:
             memory: "100Mi"
