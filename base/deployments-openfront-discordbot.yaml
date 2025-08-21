@@ -40,6 +40,12 @@ spec:
             secretKeyRef:
               name: supabase-db
               key: token
+        - name: ANALYSIS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: analysis
+              key: token
+        
         resources:
           requests:
             memory: "100Mi"
