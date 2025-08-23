@@ -1,0 +1,7 @@
+# CODEOWNERS establishes default and file-specific ownership for this repo
+#
+# Default: everything is owned by John2143
+* @John2143
+
+# Specific: the Discord bot deployment YAML is owned by TKTK123456
+base/deployments-openfront-discordbot.yaml @TKTK123456
