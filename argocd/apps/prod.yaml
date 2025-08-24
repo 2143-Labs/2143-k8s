@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # The project the application belongs to
+  project: prod
+  
+  # Source of the application manifests
+  source:
+    repoURL: git@github.com:John2143/2143-k8s.git
+    targetRevision: HEAD
+    path: overlays/prod
+    
+    # Since this uses Kustomize
+    kustomize:
+      images: []  # Can override images here if needed
+      
+  # Destination cluster and namespace
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default  # Main application namespace
+    
+  # Sync policy
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      # Allow applications to span multiple namespaces
+      - CreateNamespace=true
+      # Handle resource replacement
+      - Replace=true
+      # Respect ignore differences
+      - RespectIgnoreDifferences=true
+      # Apply out of sync only
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+        
+  # Ignore differences for certain fields that change frequently
+  ignoreDifferences:
+    # Ignore metadata changes that don't affect functionality
+    - group: "apps"
+      kind: "Deployment"
+      jsonPointers:
+        - /spec/template/metadata/annotations
+        - /metadata/annotations
+    # Ignore HPA status and observed generation
+    - group: "autoscaling"
+      kind: "HorizontalPodAutoscaler"
+      jsonPointers:
+        - /status
+        - /metadata/annotations
+    # Ignore service account token changes
+    - group: ""
+      kind: "ServiceAccount"
+      jsonPointers:
+        - /secrets

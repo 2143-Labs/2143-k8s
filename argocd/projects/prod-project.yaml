@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: prod
+  namespace: argocd
+spec:
+  # Description of this project
+  description: Production environment project for 2143-k8s cluster
+  
+  # Allow manifests to deploy from trusted git repo
+  sourceRepos:
+  - 'git@github.com:John2143/2143-k8s.git'
+  - 'https://github.com/John2143/2143-k8s.git'  # Allow both SSH and HTTPS
+  
+  # Destination clusters and namespaces
+  destinations:
+  # Allow deployment to in-cluster
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+    name: in-cluster
+  
+  # Cluster resource allow list
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  - group: 'rbac.authorization.k8s.io'
+    kind: ClusterRole
+  - group: 'rbac.authorization.k8s.io' 
+    kind: ClusterRoleBinding
+  - group: 'apiextensions.k8s.io'
+    kind: CustomResourceDefinition
+  - group: 'networking.k8s.io'
+    kind: IngressClass
+  - group: 'gateway.networking.k8s.io'
+    kind: GatewayClass
+  - group: 'gateway.networking.k8s.io'
+    kind: Gateway
+  - group: 'cert-manager.io'
+    kind: ClusterIssuer
+  
+  # Roles - define what ArgoCD users can do with applications in this project
+  roles:
+  # Example role - Admin access for operators
+  - name: admin
+    description: Admin privileges for prod project
+    policies:
+    - p, proj:prod:admin, applications, *, prod/*, allow
+    - p, proj:prod:admin, repositories, *, *, allow
+    - p, proj:prod:admin, logs, get, prod/*, allow
+    - p, proj:prod:admin, exec, create, prod/*, allow
+    groups:
+    - argocd:admin

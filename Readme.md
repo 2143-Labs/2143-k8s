@@ -64,3 +64,26 @@ curl -k https://2143.christmas/coffee/asdf
 ```
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
 ```
+
+# ArgoCD GitOps
+
+This repository is now configured to use ArgoCD for GitOps-based deployment. See the [argocd/README.md](argocd/README.md) file for detailed instructions.
+
+## Quick Start
+
+```bash
+# Create the ArgoCD namespace
+kubectl create namespace argocd
+
+# Configure SSH access first - edit argocd/repos/github-ssh-secret.yaml
+# Then deploy the key, project, and root application
+kubectl apply -f argocd/repos/github-ssh-secret.yaml
+kubectl apply -f argocd/projects/prod-project.yaml
+kubectl apply -f argocd/apps/root.yaml
+
+# Access the ArgoCD UI
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Then visit https://localhost:8080 in your browser (username: admin).

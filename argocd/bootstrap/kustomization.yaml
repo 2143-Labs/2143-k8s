@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- 00-argocd-install.yaml
+
+namespace: argocd
+
+# Optional: Add common labels to all resources
+commonLabels:
+  app.kubernetes.io/name: argocd
+  app.kubernetes.io/part-of: argocd

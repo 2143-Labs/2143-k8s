@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  # This finalizer ensures the Application resource will be handled properly during deletion
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # The project the application belongs to
+  project: default
+  
+  # Source of the application manifests
+  source:
+    repoURL: git@github.com:John2143/2143-k8s.git
+    targetRevision: HEAD  # Can be changed to a specific branch/tag/commit
+    path: argocd/bootstrap
+    
+  # Destination cluster and namespace to deploy the application
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+    
+  # Sync policy
+  syncPolicy:
+    automated:
+      prune: true     # Prune resources that are no longer tracked
+      selfHeal: true  # Auto-sync when the live cluster state deviates from Git
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true  # Create namespace if it doesn't exist
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
