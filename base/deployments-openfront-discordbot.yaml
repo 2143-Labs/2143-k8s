@@ -203,5 +203,5 @@ subjects:
 - kind: ServiceAccount
   name: openfront-api-discordbot
   namespace: tk
-# This is the deplyoment of the container defined in https://github.com/2143-labs/openfrontAPIDiscordBots
+# This is the deplyoment of the container defined in https://github.com/TKTK123456/openfrontAPIDiscordBots or not always up to date https://github.com/2143-labs/openfrontAPIDiscordBots
 ---
