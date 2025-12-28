@@ -259,6 +259,33 @@ spec:
         name: 0x2b.pics-tls-key-prod
         namespace: default
 
+  - name: devolved-us
+    hostname: devolved.us
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: devolved-us-tls-key-prod
+        namespace: default
+  - name: devolved-us-all
+    hostname: "*.devolved.us"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: devolved-us-tls-key-prod
+        namespace: default
+
   - name: openfront.pro
     hostname: "openfront.pro"
     port: 443
