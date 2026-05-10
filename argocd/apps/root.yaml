@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: git@github.com:John2143/2143-k8s.git
+    targetRevision: HEAD
+    path: argocd/apps
+    
+    # Disable directory recursion to only get files directly in the apps/ directory
+    directory:
+      recurse: false
+      
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
