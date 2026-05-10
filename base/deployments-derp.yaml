@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: derp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: derp-server
+  template:
+    metadata:
+      labels:
+        app: derp-server
+        servicegroup: "mine"
+    spec:
+      containers:
+      - name: derp-server
+        image: ghcr.io/tailscale/derper:latest
+        args:
+        - --hostname=derp.2143.me
+        - --certmode=manual
+        - --http-port=8080
+        - --stun-port=3478
+        - --verify-clients=false
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+        - containerPort: 3478
+          protocol: UDP
+          name: stun
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "10m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: derp-server
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: derp-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: derp-server-stun
+spec:
+  type: NodePort
+  ports:
+  - port: 3478
+    targetPort: 3478
+    nodePort: 30478
+    protocol: UDP
+    name: stun
+  selector:
+    app: derp-server
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: derp-server
+spec:
+  parentRefs:
+  - name: apps-gateway
+  hostnames:
+  - "derp.2143.me"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: derp-server
+      port: 80
+      namespace: default
