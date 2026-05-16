@@ -8,5 +8,5 @@ spec:
     kind: Gateway
     name: apps-gateway
   body:
-    maxSize: "15g"
+    maxSize: "200g"
     timeout: "120s"
