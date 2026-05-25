@@ -37,7 +37,7 @@ patches:
 images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "116"
+  newTag: "117"
 
 - name: openfrontpro:latest
   newName: ghcr.io/2143-labs/openfrontpro-rs

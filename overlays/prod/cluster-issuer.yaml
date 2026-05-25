@@ -55,6 +55,18 @@ spec:
         dnsZones:
         - brick.gay
     - dns01:
+        webhook:
+          groupName: desec.io
+          solverName: desec-http
+          config:
+            apiUrl: https://desec.io/api/v1
+            domainName: poe.sale
+            secretName: desec-dns-john
+            secretKeyName: token
+      selector:
+        dnsZones:
+        - poe.sale
+    - dns01:
         digitalocean:
           tokenSecretRef:
             name: digitalocean-dns
