@@ -96,8 +96,9 @@ spec:
         name: 2143-moe-tls-key-prod
         namespace: default
 
-  - name: brick-gay
-    hostname: brick.gay
+
+  - name: up-brick-gay
+    hostname: up.brick.gay
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -107,10 +108,10 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: brick-gay-tls-key-prod
+        name: up-brick-gay-tls-key-prod
         namespace: default
-  - name: brick-gay-all
-    hostname: "*.brick.gay"
+  - name: i-brick-gay
+    hostname: i.brick.gay
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -120,7 +121,7 @@ spec:
       mode: Terminate
       certificateRefs:
       - kind: Secret
-        name: brick-gay-tls-key-prod
+        name: i-brick-gay-tls-key-prod
         namespace: default
 
   #- name: ewan-m
