@@ -1,5 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+#- nonprod-gateway.yaml
 resources:
 - ../../base
 - https://github.com/kubernetes/kube-state-metrics/examples/standard
@@ -8,18 +9,17 @@ resources:
 - pvc.yaml
 - https-redirect.yaml
 - deployment-redirector.yaml
-#- nonprod-gateway.yaml
 - grafana-routes.yaml
 - horizontalpodautoscaler.yaml
 #- misskey.yaml
 secretGenerator:
-- name: s3cmd
-  files:
+- files:
   - ./s3cmd.txt
   - ./s3cmd_spaces.txt
+  name: s3cmd
+#- path: loadbalancer.yaml
 patches:
 - path: gateway.yaml
-#- path: loadbalancer.yaml
 - path: deployment.yaml
 - path: httproute.yaml
 - path: deployment-bastion.yaml
@@ -34,18 +34,18 @@ patches:
   #patch: |
     #- op: remove
       #path: /spec/template/spec/containers/0/env/0
+
+
 images:
-- name: imagehost:latest
-  newName: ghcr.io/john2143/john2143.com
-  newTag: "120"
-
-- name: openfrontpro:latest
-  newName: ghcr.io/2143-labs/openfrontpro-rs
-  newTag: openfrontpro-latest
-- name: openfrontpro-sim:latest
-  newName: ghcr.io/2143-labs/openfrontpro-sim
-  newTag: openfrontpro-latest
-
 - name: bot:latest
   newName: ghcr.io/2143-labs/openfront-api-discordbot
   newTag: openfront-api-discordbot-latest
+- name: imagehost:latest
+  newName: ghcr.io/john2143/john2143.com
+  newTag: "121"
+- name: openfrontpro-sim:latest
+  newName: ghcr.io/2143-labs/openfrontpro-sim
+  newTag: openfrontpro-latest
+- name: openfrontpro:latest
+  newName: ghcr.io/2143-labs/openfrontpro-rs
+  newTag: openfrontpro-latest
