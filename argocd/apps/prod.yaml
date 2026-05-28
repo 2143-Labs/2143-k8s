@@ -65,3 +65,8 @@ spec:
       kind: "ServiceAccount"
       jsonPointers:
         - /secrets
+    # Ignore volumeName on bound PVCs (set by provisioner, immutable)
+    - group: ""
+      kind: "PersistentVolumeClaim"
+      jsonPointers:
+        - /spec/volumeName
