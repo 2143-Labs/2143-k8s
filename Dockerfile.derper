@@ -1,0 +1,8 @@
+FROM golang:latest AS build
+RUN CGO_ENABLED=0 go install tailscale.com/cmd/derper@latest
+
+FROM alpine:3.21
+RUN apk add --no-cache ca-certificates
+COPY --from=build /go/bin/derper /usr/local/bin/derper
+EXPOSE 8080 3478/udp
+ENTRYPOINT ["/usr/local/bin/derper"]
