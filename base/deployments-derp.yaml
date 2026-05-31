@@ -19,7 +19,8 @@ spec:
         args:
         - --hostname=derp-r.2143.me
         - --certmode=manual
-        - --http-port=8080
+        - -a
+        - :8080
         - --stun-port=3478
         - --verify-clients=false
         ports:
