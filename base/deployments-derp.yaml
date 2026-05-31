@@ -17,8 +17,6 @@ spec:
       - name: derp-server
         image: ghcr.io/2143-labs/derper:latest
         args:
-        - --hostname=derp-r.2143.me
-        - --certmode=manual
         - -a
         - :8080
         - --stun-port=3478
