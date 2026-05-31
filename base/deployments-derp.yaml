@@ -17,7 +17,7 @@ spec:
       - name: derp-server
         image: ghcr.io/tailscale/derper:latest
         args:
-        - --hostname=derp.2143.me
+        - --hostname=derp-r.2143.me
         - --certmode=manual
         - --http-port=8080
         - --stun-port=3478
@@ -80,7 +80,7 @@ spec:
   parentRefs:
   - name: apps-gateway
   hostnames:
-  - "derp.2143.me"
+  - "derp-r.2143.me"
   rules:
   - matches:
     - path:
