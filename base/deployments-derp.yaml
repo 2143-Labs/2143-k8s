@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: derp-server
-        image: ghcr.io/tailscale/derper:latest
+        image: docker.io/tailscale/tailscale:latest
+        command: ["/usr/local/bin/derper"]
         args:
         - --hostname=derp-r.2143.me
         - --certmode=manual
