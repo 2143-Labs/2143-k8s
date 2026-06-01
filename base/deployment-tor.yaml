@@ -71,6 +71,7 @@ data:
     Nickname 2143MeTor
     ContactInfo tor@2143.me
     ORPort 30901
+    Address 165.22.179.73
     DirPort 9030
     ExitRelay 0
     SocksPort 0
