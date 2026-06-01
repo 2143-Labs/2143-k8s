@@ -25,7 +25,8 @@ spec:
     spec:
       containers:
       - name: tor
-        image: docker.io/torproject/tor:latest
+        image: docker.io/thetorproject/obfs4-bridge:latest
+        command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
         ports:
         - containerPort: 30901
