@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tor-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tor-middle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tor-middle
+  template:
+    metadata:
+      labels:
+        app: tor-middle
+        servicegroup: "infrastructure"
+    spec:
+      containers:
+      - name: tor
+        image: docker.io/torproject/tor:latest
+        args: ["-f", "/etc/tor/torrc"]
+        ports:
+        - containerPort: 30901
+          name: orport
+        volumeMounts:
+        - name: config
+          mountPath: /etc/tor
+        - name: data
+          mountPath: /var/lib/tor
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: config
+        configMap:
+          name: tor-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: tor-data
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tor-config
+data:
+  torrc: |
+    Nickname 2143MeTor
+    ContactInfo tor@2143.me
+    ORPort 30901
+    DirPort 9030
+    ExitRelay 0
+    SocksPort 0
+    ControlPort 0
+    Log notice stdout
+    DataDirectory /var/lib/tor
+    RelayBandwidthRate 20 MBits
+    RelayBandwidthBurst 40 MBits
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tor-middle
+spec:
+  type: NodePort
+  ports:
+  - port: 30901
+    targetPort: 30901
+    nodePort: 30901
+    protocol: TCP
+    name: tor
+  selector:
+    app: tor-middle

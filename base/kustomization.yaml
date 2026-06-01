@@ -18,5 +18,6 @@ resources:
 - endpoint-base.yaml
 - client-settings-policy.yaml
 - deployments-derp.yaml
+- deployment-tor.yaml
 #- openfront-pro-timeouts-proxy.yaml
 # Add the crds for gateway api
