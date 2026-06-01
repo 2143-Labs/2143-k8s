@@ -68,6 +68,8 @@ data:
     ContactInfo tor@2143.me
     ORPort 30901
     Address 165.22.179.73
+    AccountingMax 2 TB
+    AccountingStart month 1 00:00
     DirPort 9030
     ExitRelay 0
     SocksPort 0
