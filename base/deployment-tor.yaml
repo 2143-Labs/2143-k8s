@@ -23,6 +23,8 @@ spec:
         app: tor-middle
         servicegroup: "infrastructure"
     spec:
+      securityContext:
+        fsGroup: 101
       containers:
       - name: tor
         image: docker.io/thetorproject/obfs4-bridge:latest
