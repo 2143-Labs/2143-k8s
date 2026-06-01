@@ -76,3 +76,18 @@ data:
     DataDirectory /var/lib/tor
     RelayBandwidthRate 20 MBits
     RelayBandwidthBurst 40 MBits
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tor-middle
+spec:
+  type: NodePort
+  ports:
+  - port: 30901
+    targetPort: 30901
+    nodePort: 30901
+    protocol: TCP
+    name: tor
+  selector:
+    app: tor-middle
