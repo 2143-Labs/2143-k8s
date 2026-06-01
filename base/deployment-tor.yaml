@@ -23,6 +23,7 @@ spec:
         app: tor-middle
         servicegroup: "infrastructure"
     spec:
+      hostNetwork: true
       initContainers:
       - name: volume-permissions
         image: docker.io/thetorproject/obfs4-bridge:latest
@@ -32,16 +33,11 @@ spec:
           mountPath: /var/lib/tor
         securityContext:
           runAsUser: 0
-      securityContext:
-        fsGroup: 101
       containers:
       - name: tor
         image: docker.io/thetorproject/obfs4-bridge:latest
         command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
-        ports:
-        - containerPort: 30901
-          name: orport
         volumeMounts:
         - name: config
           mountPath: /etc/tor
@@ -80,18 +76,3 @@ data:
     DataDirectory /var/lib/tor
     RelayBandwidthRate 20 MBits
     RelayBandwidthBurst 40 MBits
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: tor-middle
-spec:
-  type: NodePort
-  ports:
-  - port: 30901
-    targetPort: 30901
-    nodePort: 30901
-    protocol: TCP
-    name: tor
-  selector:
-    app: tor-middle
