@@ -37,7 +37,7 @@ spec:
           runAsUser: 0
       containers:
       - name: tor
-        image: ghcr.io/2143-labs/tor:latest
+        image: tor:latest
         imagePullPolicy: Always
         command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
