@@ -12,7 +12,7 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   resourceNames: ["tailscale-exit-state"]
-  verbs: ["get", "update", "patch"]
+  verbs: ["get", "create", "update", "patch"]
 - apiGroups: [""]
   resources: ["secrets"]
   resourceNames: ["tailscale-exit-auth"]
