@@ -47,6 +47,7 @@ spec:
         app: tailscale-exit
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       serviceAccountName: tailscale-exit
       initContainers:
       - name: sysctl
