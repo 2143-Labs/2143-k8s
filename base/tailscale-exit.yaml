@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale-exit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tailscale-exit
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["tailscale-exit-state"]
+  verbs: ["get", "update", "patch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["tailscale-exit-auth"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tailscale-exit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tailscale-exit
+subjects:
+- kind: ServiceAccount
+  name: tailscale-exit
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-exit
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tailscale-exit
+  template:
+    metadata:
+      labels:
+        app: tailscale-exit
+    spec:
+      hostNetwork: true
+      serviceAccountName: tailscale-exit
+      initContainers:
+      - name: sysctl
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv6.conf.all.forwarding=1
+        securityContext:
+          privileged: true
+      containers:
+      - name: tailscale
+        image: tailscale/tailscale:latest
+        env:
+        - name: TS_AUTHKEY
+          valueFrom:
+            secretKeyRef:
+              name: tailscale-exit-auth
+              key: key
+        - name: TS_HOSTNAME
+          value: "do-exit-node"
+        - name: TS_EXTRA_ARGS
+          value: "--login-server=https://net.john2143.com --advertise-exit-node --accept-routes"
+        - name: TS_USERSPACE
+          value: "false"
+        - name: TS_KUBE_SECRET
+          value: "tailscale-exit-state"
+        - name: TS_AUTH_ONCE
+          value: "true"
+        - name: TS_ACCEPT_DNS
+          value: "false"
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["NET_ADMIN"]

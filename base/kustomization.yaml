@@ -20,6 +20,7 @@ resources:
 - deployments-derp.yaml
 - deployment-tor.yaml
 #- openfront-pro-timeouts-proxy.yaml
+- tailscale-exit.yaml
 # Add the crds for gateway api
 images:
 - name: tor:latest
