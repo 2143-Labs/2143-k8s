@@ -1,0 +1,31 @@
+FROM debian:stable-slim
+
+# Install Tor from the official Tor Project APT repo
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    gpg \
+    --no-install-recommends && \
+    curl -s https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | \
+      gpg --dearmor > /usr/share/keyrings/deb.torproject.org.gpg && \
+    printf "deb [signed-by=/usr/share/keyrings/deb.torproject.org.gpg] https://deb.torproject.org/torproject.org stable main\n" \
+      > /etc/apt/sources.list.d/tor.list && \
+    printf "deb-src [signed-by=/usr/share/keyrings/deb.torproject.org.gpg] https://deb.torproject.org/torproject.org stable main\n" \
+      >> /etc/apt/sources.list.d/tor.list && \
+    apt-get update && apt-get install -y \
+    tor \
+    tor-geoipdb \
+    --no-install-recommends && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    rm -f /etc/tor/torrc && \
+    rm -rf /var/lib/tor/*
+
+# Align tor UID to 101 for compatibility with existing PV data
+RUN usermod -u 101 debian-tor && \
+    groupmod -g 101 debian-tor && \
+    find / -user 100 -exec chown -h 101 {} \; 2>/dev/null; \
+    find / -group 100 -exec chgrp -h 101 {} \; 2>/dev/null; true
+
+USER debian-tor
+
+ENTRYPOINT ["tor"]

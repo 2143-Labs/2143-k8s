@@ -35,7 +35,8 @@ spec:
           runAsUser: 0
       containers:
       - name: tor
-        image: docker.io/thetorproject/obfs4-bridge:latest
+        image: ghcr.io/2143-labs/tor:latest
+        imagePullPolicy: Always
         command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
         volumeMounts:
