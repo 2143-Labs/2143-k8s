@@ -13,6 +13,8 @@ kind: Deployment
 metadata:
   name: tor-middle
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
