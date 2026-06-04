@@ -11,8 +11,11 @@ metadata:
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["secrets"]
   resourceNames: ["tailscale-exit-state"]
-  verbs: ["get", "create", "update", "patch"]
+  verbs: ["get", "update", "patch"]
 - apiGroups: [""]
   resources: ["secrets"]
   resourceNames: ["tailscale-exit-auth"]
