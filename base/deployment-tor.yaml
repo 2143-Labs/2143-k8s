@@ -28,7 +28,7 @@ spec:
       hostNetwork: true
       initContainers:
       - name: volume-permissions
-        image: docker.io/thetorproject/obfs4-bridge:latest
+        image: ghcr.io/2143-labs/tor:latest
         command: ["chown", "-R", "101:101", "/var/lib/tor"]
         volumeMounts:
         - name: data
@@ -38,7 +38,6 @@ spec:
       containers:
       - name: tor
         image: tor:latest
-        imagePullPolicy: Always
         command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
         volumeMounts:

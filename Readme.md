@@ -64,3 +64,48 @@ curl -k https://2143.christmas/coffee/asdf
 ```
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
 ```
+
+# Tor Middle Relay
+
+A Tor middle relay (`2143MeTor`) runs as a Kubernetes deployment managed by
+ArgoCD. It listens on port `30901` (NodePort via hostNetwork).
+
+## Configuration
+
+Config is in `base/deployment-tor.yaml` + `base/kustomization.yaml`:
+
+| Setting | Value |
+|---|---|
+| Nickname | `2143MeTor` |
+| Contact | `tor@2143.me` |
+| ORPort | `30901` |
+| Accounting | 2 TB/month, resets 1st of month |
+| Exit policy | `reject *:*` (middle relay, not exit) |
+
+## Image
+
+Built from `Dockerfile.tor` — a minimal `debian:stable-slim` image with Tor
+installed from the official [Tor Project APT repo](https://deb.torproject.org/).
+
+Published to `ghcr.io/2143-labs/tor`.
+
+## Auto-Updates
+
+A [GitHub Actions workflow](.github/workflows/tor.yml) rebuilds the image every
+**Monday at 6am UTC** (and on pushes to `Dockerfile.tor`). Each build:
+
+1. Pulls the latest Tor from `deb.torproject.org`
+2. Pushes the image to ghcr with a unique tag (`github.run_number`) and `:latest`
+3. Updates `base/kustomization.yaml` with the pinned tag and commits
+
+ArgoCD detects the kustomization change, syncs, and the `Recreate` strategy
+rolls out a new pod — no manual involvement needed.
+
+## Verify
+
+```bash
+kubectl get pods -l app=tor-middle
+kubectl logs -l app=tor-middle --tail=5
+```
+
+Relay status: https://metrics.torproject.org/rs.html#details/6E00E3C03DBDF4FE99F0324337954D458F13DB9A
