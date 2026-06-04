@@ -4,8 +4,8 @@ on:
   push:
     paths:
       - Dockerfile.tor
-      - base/kustomization.yaml
-      - base/deployment-tor.yaml
+
+
   schedule:
     # Rebuild weekly to pick up Tor APT repo updates
     - cron: '0 6 * * 1'
@@ -49,4 +49,4 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet && echo "No changes" || (git commit -am "chore: bump tor image to ${{ github.run_number }}" && git push)
+          git diff --quiet && echo "No changes" || (git commit -am "chore: bump tor image to ${{ github.run_number }} [skip ci]" && git push)
