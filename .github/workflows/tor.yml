@@ -12,17 +12,37 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate image tag
+        id: tag
+        run: echo "tag=$(date -u +%Y%m%d)-${GITHUB_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.tor
           push: true
-          tags: ghcr.io/2143-labs/tor:latest
+          tags: |
+            ghcr.io/2143-labs/tor:latest
+            ghcr.io/2143-labs/tor:${{ steps.tag.outputs.tag }}
+
+      - name: Update deployment image tag
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          sed -i "s|image: ghcr.io/2143-labs/tor:.*|image: ghcr.io/2143-labs/tor:${TAG}|" \
+            base/deployment-tor.yaml
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: bump tor image to ${{ steps.tag.outputs.tag }}"
+          file_pattern: base/deployment-tor.yaml
