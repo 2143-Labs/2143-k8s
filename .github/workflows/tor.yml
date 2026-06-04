@@ -4,8 +4,6 @@ on:
   push:
     paths:
       - Dockerfile.tor
-
-
   schedule:
     # Rebuild weekly to pick up Tor APT repo updates
     - cron: '0 6 * * 1'
@@ -45,8 +43,7 @@ jobs:
         run: |
           kustomize edit set image tor:latest=ghcr.io/2143-labs/tor:${{ github.run_number }}
 
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet && echo "No changes" || (git commit -am "chore: bump tor image to ${{ github.run_number }} [skip ci]" && git push)
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: bump tor image to ${{ github.run_number }} [skip ci]"
+          file_pattern: base/kustomization.yaml
