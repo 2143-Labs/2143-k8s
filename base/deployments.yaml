@@ -87,6 +87,34 @@ spec:
           value: "0.0.0.0"
         - name: NODE_ENV
           value: production
+        - name: AUTH_CALLBACK_BASE
+          value: "https://john2143.com"
+        - name: POCKETID_ISSUER
+          value: "https://au.2143.me"
+        - name: POCKETID_ADMIN_GROUP
+          value: "admin"
+        - name: POCKETID_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: oauth-creds
+              key: POCKETID_CLIENT_ID
+        - name: POCKETID_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth-creds
+              key: POCKETID_CLIENT_SECRET
+        - name: DISCORD_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: oauth-creds
+              key: DISCORD_CLIENT_ID
+        - name: DISCORD_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth-creds
+              key: DISCORD_CLIENT_SECRET
+        - name: DISCORD_ADMIN_IDS
+          value: ""
 
         resources:
           requests:
