@@ -4,6 +4,8 @@ metadata:
   name: john2143-com
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: john2143-com
