@@ -29,5 +29,6 @@ RUN usermod -u 101 debian-tor && \
 USER debian-tor
 
 ENTRYPOINT ["tor"]
+# Built for 3-month relay freeze — rebuild manually via workflow_dispatch if needed
 
 
