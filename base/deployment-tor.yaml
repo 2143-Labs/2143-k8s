@@ -26,6 +26,9 @@ spec:
         servicegroup: "infrastructure"
     spec:
       hostNetwork: true
+      nodeSelector:
+        doks.digitalocean.com/node-pool: pool-medium
+      terminationGracePeriodSeconds: 120
       initContainers:
       - name: volume-permissions
         image: ghcr.io/2143-labs/tor:latest
@@ -66,13 +69,10 @@ metadata:
   name: tor-config
 data:
   torrc: |
-    Nickname 2143MeTor
+    Nickname 2143Me
     ContactInfo tor@2143.me
-    ORPort 30901
-    Address 165.22.179.73
-    AccountingMax 2 TB
-    AccountingStart month 1 00:00
-    DirPort 9030
+    ORPort 30901 IPv4Only
+    tunnelled-dir-server 1
     ExitRelay 0
     SocksPort 0
     ControlPort 0
@@ -95,3 +95,4 @@ spec:
     name: tor
   selector:
     app: tor-middle
+
