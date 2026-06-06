@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: openfront-pro-simulation-api
 spec:
+  replicas: 0
   selector:
     matchLabels:
       app: openfront-pro-simulation-api
@@ -107,7 +108,7 @@ kind: Deployment
 metadata:
   name: openfront-pro
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: openfront-pro

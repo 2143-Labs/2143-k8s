@@ -25195,6 +25195,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-dex-server
 spec:
+  replicas: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-dex-server
@@ -25316,6 +25317,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-notifications-controller
 spec:
+  replicas: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-notifications-controller
@@ -25416,6 +25418,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-redis
 spec:
+  replicas: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-redis
@@ -25851,6 +25854,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-server
 spec:
+  replicas: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-server
