@@ -72,7 +72,6 @@ data:
     Nickname 2143Me
     ContactInfo tor@2143.me
     ORPort 30901 IPv4Only
-    tunnelled-dir-server 1
     ExitRelay 0
     SocksPort 0
     ControlPort 0
