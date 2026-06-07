@@ -16,25 +16,25 @@ end
 prune_precheck
 
 cd $dataDir
-# Look for all files and delete them. This includes .dl files too
-# (%T@ %p) is the unix timestamp and the file path
-# {print $NF} prints the last column
-set files (find . -maxdepth 1 -type f -mmin "+$age_minutes" -printf "%T@ %p\n" | sort -n | awk '{print $NF}')
+
+# Phase 1: Delete orphaned .dl files (never get minio backup, so never get markers)
+set dl_files (find . -maxdepth 1 -name '*.dl' -type f -mmin "+$age_minutes" -printf "%p\n")
+set dl_count (count $dl_files)
+if test $dl_count -gt 0
+    echo "Deleting $dl_count orphaned .dl files."
+    sudo rm $dl_files
+else
+    echo "No orphaned .dl files to delete."
+end
+
+# Phase 2: Prune backed-up files
+set files (find . -maxdepth 1 -type f ! -name '*.dl' -mmin "+$age_minutes" -printf "%T@ %p\n" | sort -n | awk '{print $NF}')
 
 for file in $files
-    # if a file exists, test -f will return 0
     test -f "$dataDir/processed_minio/$file"
     set has_minio $status
-    #test -f "$dataDir/processed_digitalocean/$file"
-    #set has_do $status
     if test $has_minio -eq 0
-        #if test $has_do -eq 0
-            #echo "Deleting $file : BOTH MINIO and DO backup"
-        #end
-        #echo "Will delete $file : Has minio backup"
-        # Add to might_prune array
         set might_prune $might_prune $file
-        #sudo rm $file
     end
 end
 
