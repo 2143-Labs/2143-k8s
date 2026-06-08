@@ -6,59 +6,9 @@ spec:
   template:
     spec:
       volumes:
-      - name: s3cmd
-        secret:
-          secretName: s3cmd
-          items:
-            - key: s3cmd.txt
-              path: .s3cfg
-      - name: s3cmd-do
-        secret:
-          secretName: s3cmd
-          items:
-            - key: s3cmd_spaces.txt
-              path: .s3cfg
-
       containers:
-      - name: bastion-minio
-        image: ghcr.io/john2143/better_gha_runner:latest
-        command:
-        - "fish"
-        - "--debug=-error,-warning-path"
-        - "-c"
-        - |
-          while true;
-            /scripts/upload.fish 'processed_minio' '';
-            sleep 10;
-          end
-        volumeMounts:
-        - name: data-volume
-          mountPath: /data/juushFiles/
-        - name: upload-fish
-          mountPath: /scripts/
-        - name: s3cmd
-          mountPath: /home/runner/
-        env:
-        - name: HOME
-          value: /home/runner
-
-      #- name: bastion-s3
-        #image: ghcr.io/john2143/better_gha_runner:latest
-        #command: ["fish", "-c", "while true; fish --debug=-error,-warning-path /scripts/upload.fish 'processed_digitalocean' 'public-prod/'; sleep 10; end"]
-        #volumeMounts:
-        #- name: data-volume
-          #mountPath: /data/juushFiles/
-        #- name: upload-fish
-          #mountPath: /scripts/
-        #- name: s3cmd-do
-          #mountPath: /home/runner/
-        #env:
-        #- name: HOME
-          #value: /home/runner
-
       - name: bastion-pruner
         image: ghcr.io/john2143/better_gha_runner:latest
-        # 60 -> number of minutes to keep in hot storage
         command:
         - "fish"
         - "--debug=-error,-warning-path"
