@@ -6,7 +6,8 @@ spec:
   template:
     spec:
       containers:
-      containers:
+      - name: bastion-minio
+        $patch: delete
       - name: bastion-pruner
         image: ghcr.io/john2143/better_gha_runner:latest
         command:
