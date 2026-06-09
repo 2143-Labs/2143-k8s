@@ -5,7 +5,7 @@ metadata:
 spec:
   template:
     spec:
-      volumes:
+      containers:
       containers:
       - name: bastion-pruner
         image: ghcr.io/john2143/better_gha_runner:latest
