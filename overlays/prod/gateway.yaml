@@ -343,3 +343,9 @@ spec:
         #namespace: default
 
 
+  - name: mongo-proxy
+    port: 4040
+    protocol: TCP
+    allowedRoutes:
+      namespaces:
+        from: Same
