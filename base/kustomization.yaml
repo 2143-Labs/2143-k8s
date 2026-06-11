@@ -22,6 +22,8 @@ resources:
 - deployment-tor.yaml
 - tailscale-exit.yaml
 - tcproute.yaml
+- service-mongo-nodeport.yaml
+- cronjob-ddns-mongo.yaml
 # Add the crds for gateway api
 images:
 - name: tor:latest

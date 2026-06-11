@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ddns-mongo
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          containers:
+            - name: updater
+              image: alpine:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  apk add --no-cache curl bind-tools >/dev/null 2>&1
+                  TOKEN="$DESEC_TOKEN"
+                  API="https://desec.io/api/v1/domains/john2143.com/rrsets"
+                  IP=$(curl -4sf --connect-timeout 10 ifconfig.me 2>/dev/null || curl -4sf --connect-timeout 10 icanhazip.com 2>/dev/null)
+                  [ -z "$IP" ] && echo "ERROR: no public IP" && exit 1
+                  CURRENT=$(dig +short mongo.john2143.com @1.1.1.1 +noall +answer 2>/dev/null)
+                  [ "$CURRENT" = "$IP" ] && echo "OK: mongo.john2143.com=$IP (no change)" && exit 0
+                  HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+                    -H "Authorization: Token $TOKEN" \
+                    -H "Content-Type: application/json" \
+                    "$API/mongo/A/" \
+                    -d "{\"records\":[\"$IP\"]}")
+                  if [ "$HTTP" = "200" ] || [ "$HTTP" = "204" ]; then
+                    echo "OK: mongo.john2143.com -> $IP (PATCH $HTTP)"
+                  else
+                    curl -sf -X POST \
+                      -H "Authorization: Token $TOKEN" \
+                      -H "Content-Type: application/json" \
+                      "$API/" \
+                      -d "{\"subname\":\"mongo\",\"type\":\"A\",\"ttl\":300,\"records\":[\"$IP\"]}"
+                    echo "OK: mongo.john2143.com -> $IP (POST created)"
+                  fi
+              env:
+                - name: DESEC_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: desec-dns
+                      key: token
+              resources:
+                requests:
+                  memory: "16Mi"
+                  cpu: "5m"
+                limits:
+                  memory: "64Mi"
+                  cpu: "100m"
+          restartPolicy: OnFailure
