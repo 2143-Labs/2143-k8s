@@ -36,14 +36,14 @@ spec:
                       -H "Authorization: Token $TOKEN" \
                       -H "Content-Type: application/json" \
                       "$API/" \
-                      -d "{\"subname\":\"mongo\",\"type\":\"A\",\"ttl\":300,\"records\":[\"$IP\"]}"
+                      -d "{\"subname\":\"mongo\",\"type\":\"A\",\"ttl\":3600,\"records\":[\"$IP\"]}"
                     echo "OK: mongo.john2143.com -> $IP (POST created)"
                   fi
               env:
                 - name: DESEC_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: desec-dns
+                      name: desec-dns-john
                       key: token
               resources:
                 requests:
