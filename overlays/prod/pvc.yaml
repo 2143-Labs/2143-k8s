@@ -8,7 +8,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 50Gi
   storageClassName: do-block-storage-retain
 ---
 apiVersion: v1
