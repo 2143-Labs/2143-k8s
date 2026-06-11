@@ -40,7 +40,7 @@ spec:
           runAsUser: 0
       containers:
       - name: tor
-        image: tor:latest
+        image: ghcr.io/2143-labs/tor:latest
         command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
         volumeMounts:
@@ -79,6 +79,7 @@ data:
     DataDirectory /var/lib/tor
     RelayBandwidthRate 20 MBits
     RelayBandwidthBurst 40 MBits
+    MaxMemInQueues 384 MB
 ---
 apiVersion: v1
 kind: Service
