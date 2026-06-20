@@ -86,3 +86,49 @@ spec:
           privileged: true
           capabilities:
             add: ["NET_ADMIN"]
+      - name: alloy
+        image: grafana/alloy:latest
+        args: ["run", "/etc/alloy/config.alloy"]
+        volumeMounts:
+          - name: varlog
+            mountPath: /var/log
+            readOnly: true
+          - name: alloy-config
+            mountPath: /etc/alloy
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: alloy-config
+        configMap:
+          name: alloy-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-config
+data:
+  config.alloy: |
+    // Collect webserver access logs and ship to Loki via Headscale #2.
+    // DO NYC exit node has TS_ACCEPT_DNS=false, so Loki endpoint MUST be
+    // an IP address — either the kube-vip LB (192.168.5.12, preferred,
+    // requires Headscale #2 subnet route) or a home node tailnet IP
+    // (100.64.0.x) with a Loki gateway NodePort.
+    local.file_match "webserver_logs" {
+      path_targets = [
+        {"__path__": "/var/log/nginx/access.log"},
+        {"__path__": "/var/log/apache2/access.log"},
+      ]
+    }
+    loki.source.file "webserver" {
+      targets    = local.file_match.webserver_logs.targets
+      forward_to = [loki.write.default.receiver]
+    }
+    loki.write "default" {
+      endpoint {
+        // Option 1 (preferred): Loki push LB via Headscale #2 subnet route
+        url = "http://192.168.5.12:3100/loki/api/v1/push"
+        // Option 2: home node tailnet IP + NodePort
+        // url = "http://100.64.0.X:3100/loki/api/v1/push"
+      }
+    }
