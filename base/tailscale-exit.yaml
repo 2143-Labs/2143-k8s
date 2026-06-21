@@ -87,7 +87,7 @@ spec:
           capabilities:
             add: ["NET_ADMIN"]
       - name: alloy
-        image: grafana/alloy:latest
+        image: grafana/alloy:v1.17.0
         args: ["run", "/etc/alloy/config.alloy"]
         volumeMounts:
           - name: varlog
@@ -116,8 +116,8 @@ data:
     // (100.64.0.x) with a Loki gateway NodePort.
     local.file_match "webserver_logs" {
       path_targets = [
-        {"__path__": "/var/log/nginx/access.log"},
-        {"__path__": "/var/log/apache2/access.log"},
+        {__path__ = "/var/log/nginx/access.log"},
+        {__path__ = "/var/log/apache2/access.log"},
       ]
     }
     loki.source.file "webserver" {
