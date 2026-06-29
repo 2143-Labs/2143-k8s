@@ -61,20 +61,17 @@ spec:
               name: seaweedfs-s3-creds
               key: secretKey
         - name: MINIO_ENDPOINT_URL
-          valueFrom:
-            secretKeyRef:
-              name: minio-creds
-              key: S3_ENDPOINT_URL
+          value: "https://files.john2143.com"
         - name: MINIO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: minio-creds
-              key: S3_ACCESS_KEY
+              name: seaweedfs-s3-creds
+              key: accessKey
         - name: MINIO_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: minio-creds
-              key: S3_SECRET_KEY
+              name: seaweedfs-s3-creds
+              key: secretKey
 
         - name: BUCKET
           value: imagehost-files
