@@ -72,9 +72,10 @@ spec:
           solverName: desec-http
           config:
             apiUrl: https://desec.io/api/v1
-            domainName: john2143.com
+            domainName: 2143.me
             secretName: desec-dns-john
             secretKeyName: token
+        cnameStrategy: Follow
       selector:
         dnsZones:
         - john2143.com
