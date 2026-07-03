@@ -67,6 +67,19 @@ spec:
         dnsZones:
         - poe.sale
     - dns01:
+        webhook:
+          groupName: desec.io
+          solverName: desec-http
+          config:
+            apiUrl: https://desec.io/api/v1
+            domainName: 2143.me
+            secretName: desec-dns
+            secretKeyName: token
+      selector:
+        dnsZones:
+        - 2143.me
+        - john2143.com
+    - dns01:
         digitalocean:
           tokenSecretRef:
             name: digitalocean-dns
