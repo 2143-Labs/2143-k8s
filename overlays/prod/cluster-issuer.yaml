@@ -73,7 +73,7 @@ spec:
           config:
             apiUrl: https://desec.io/api/v1
             domainName: john2143.com
-            secretName: desec-dns
+            secretName: desec-dns-john
             secretKeyName: token
       selector:
         dnsZones:
