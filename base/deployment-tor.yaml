@@ -77,8 +77,8 @@ data:
     ControlPort 0
     Log notice stdout
     DataDirectory /var/lib/tor
-    RelayBandwidthRate 60 MBits
-    RelayBandwidthBurst 120 MBits
+    RelayBandwidthRate 30 MBits
+    RelayBandwidthBurst 60 MBits
     MaxMemInQueues 384 MB
 ---
 apiVersion: v1
