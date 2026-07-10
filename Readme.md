@@ -67,7 +67,7 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 
 # Tor Middle Relay
 
-A Tor middle relay (`2143MeTor`) runs as a Kubernetes deployment managed by
+A Tor middle relay (`2143Me`) runs as a Kubernetes deployment managed by
 ArgoCD. It listens on port `30901` (NodePort via hostNetwork).
 
 ## Configuration
@@ -76,10 +76,10 @@ Config is in `base/deployment-tor.yaml` + `base/kustomization.yaml`:
 
 | Setting | Value |
 |---|---|
-| Nickname | `2143MeTor` |
+| Nickname | `2143Me` |
 | Contact | `tor@2143.me` |
 | ORPort | `30901` |
-| Accounting | 2 TB/month, resets 1st of month |
+| Bandwidth | 60 MBit rate / 120 MBit burst |
 | Exit policy | `reject *:*` (middle relay, not exit) |
 
 ## Image
