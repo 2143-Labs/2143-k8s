@@ -28,4 +28,4 @@ resources:
 images:
 - name: tor:latest
   newName: ghcr.io/2143-labs/tor
-  newTag: "9"
+  newTag: "10"
