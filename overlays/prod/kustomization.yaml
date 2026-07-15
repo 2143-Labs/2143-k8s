@@ -6,6 +6,7 @@ resources:
 - cluster-issuer.yaml
 - certs.yaml
 - pvc.yaml
+- temporal-pvc.yaml
 - https-redirect.yaml
 - deployment-redirector.yaml
 - grafana-routes.yaml
