@@ -29,6 +29,8 @@ spec:
           value: temporal
         - name: POSTGRES_DB
           value: temporal
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
           name: pgdata
