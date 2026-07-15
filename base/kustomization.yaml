@@ -18,7 +18,6 @@ resources:
 - tcproute.yaml
 - service-mongo-nodeport.yaml
 - cronjob-ddns-mongo.yaml
-- temporal.yaml
 # Add the crds for gateway api
 images:
 - name: tor:latest
