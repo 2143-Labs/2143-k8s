@@ -127,7 +127,7 @@ spec:
     spec:
       containers:
       - name: temporal-ui
-        image: temporalio/ui:2.34.1
+        image: temporalio/ui:2.52.1
         ports:
         - containerPort: 8080
         env:
