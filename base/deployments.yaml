@@ -19,6 +19,9 @@ spec:
       - name: data-volume
         persistentVolumeClaim:
           claimName: files-pvc
+      - name: temporal-certs
+        secret:
+          secretName: temporal-mtls-client
 
       #securityContext:
         #runAsUser: 1000
@@ -34,6 +37,9 @@ spec:
         volumeMounts:
         - mountPath: /app/juushFiles
           name: data-volume
+        - mountPath: /etc/temporal-certs
+          name: temporal-certs
+          readOnly: true
         env:
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: "0"
@@ -105,6 +111,10 @@ spec:
               key: DISCORD_CLIENT_SECRET
         - name: DISCORD_ADMIN_IDS
           value: ""
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-grpc.john2143.com:7233"
+        - name: TEMPORAL_TLS_CERT_DIR
+          value: "/etc/temporal-certs"
 
         resources:
           requests:
