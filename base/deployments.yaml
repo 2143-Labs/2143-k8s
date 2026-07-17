@@ -15,6 +15,7 @@ spec:
         app: john2143-com
         servicegroup: "mine"
     spec:
+      serviceAccountName: john2143-com
       volumes:
       - name: data-volume
         persistentVolumeClaim:
@@ -22,6 +23,10 @@ spec:
       - name: temporal-certs
         secret:
           secretName: temporal-mtls-client
+      - name: spiffe-workload-api
+        csi:
+          driver: csi.spiffe.io
+          readOnly: true
 
       #securityContext:
         #runAsUser: 1000
@@ -37,6 +42,9 @@ spec:
         volumeMounts:
         - mountPath: /app/juushFiles
           name: data-volume
+        - mountPath: /spiffe-workload-api
+          name: spiffe-workload-api
+          readOnly: true
         - mountPath: /etc/temporal-certs
           name: temporal-certs
           readOnly: true
@@ -67,6 +75,8 @@ spec:
             secretKeyRef:
               name: seaweedfs-s3-creds
               key: secretKey
+        - name: SPIFFE_ENDPOINT_SOCKET
+          value: "unix:///spiffe-workload-api/spire-agent.sock"
 
         - name: BUCKET
           value: imagehost-files
@@ -115,6 +125,17 @@ spec:
           value: "temporal-grpc.john2143.com:7233"
         - name: TEMPORAL_TLS_CERT_DIR
           value: "/etc/temporal-certs"
+        - name: POCKETID_TEMPORAL_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: oauth-creds
+              key: POCKETID_TEMPORAL_CLIENT_ID
+        - name: POCKETID_TOKEN_URL
+          value: "https://au.2143.me/api/oidc/token"
+        - name: POCKETID_TEMPORAL_RESOURCE
+          value: "https://temporal.john2143.com"
+        - name: POCKETID_TEMPORAL_SCOPE
+          value: "john2143-com:write"
 
         resources:
           requests:
@@ -213,3 +234,10 @@ spec:
     name: http
   selector:
     app: mongo
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: john2143-com
+  namespace: default
