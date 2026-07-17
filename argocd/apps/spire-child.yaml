@@ -41,6 +41,19 @@ spec:
             accessMode: ReadWriteOnce
             storageClass: "do-block-storage"
 
+        upstream-spire-agent:
+          workloadAttestor:
+            k8s:
+              disableContainerSelectors: false
+              skipKubeletVerification: true
+              useNewContainerLocator: false
+
+        downstream-spire-agent:
+          workloadAttestor:
+            k8s:
+              disableContainerSelectors: false
+              skipKubeletVerification: true
+              useNewContainerLocator: false
         spiffe-oidc-discovery-provider:
           enabled: false
   destination:

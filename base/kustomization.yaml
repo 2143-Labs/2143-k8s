@@ -19,6 +19,7 @@ resources:
 - service-mongo-nodeport.yaml
 - cronjob-ddns-mongo.yaml
 - clusterspiffeid.yaml
+- spire-external-controller-rbac.yaml
 # Add the crds for gateway api
 images:
 - name: tor:latest
