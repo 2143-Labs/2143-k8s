@@ -11,6 +11,7 @@ spec:
   sourceRepos:
   - 'git@github.com:John2143/2143-k8s.git'
   - 'https://github.com/John2143/2143-k8s.git'  # Allow both SSH and HTTPS
+  - 'https://spiffe.github.io/helm-charts-hardened/'
   
   # Destination clusters and namespaces
   destinations:
@@ -37,6 +38,10 @@ spec:
     kind: Gateway
   - group: 'cert-manager.io'
     kind: ClusterIssuer
+  - group: 'spire.spiffe.io'
+    kind: '*'
+  - group: 'storage.k8s.io'
+    kind: CSIDriver
   
   # Roles - define what ArgoCD users can do with applications in this project
   roles:

@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spire-child
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: prod
+  source:
+    chart: spire-nested
+    repoURL: https://spiffe.github.io/helm-charts-hardened/
+    targetRevision: 0.29.0
+    helm:
+      releaseName: spire
+      values: |
+        global:
+          spire:
+            trustDomain: kube.john2143.com
+            clusterName: "do-john2143"
+            jwtIssuer: https://spiffe.john2143.com
+            upstreamSpireAddress: spire.john2143.com
+            caSubject:
+              country: US
+              organization: john2143
+              commonName: kube.john2143.com
+            recommendations:
+              enabled: true
+            namespaces:
+              create: true
+
+        tags:
+          nestedChildFull: true
+
+        internal-spire-server:
+          controllerManager:
+            className: spire-mgmt-spire-internal-server
+          persistence:
+            type: pvc
+            size: 1Gi
+            accessMode: ReadWriteOnce
+            storageClass: "do-block-storage"
+
+        spiffe-oidc-discovery-provider:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: spire-mgmt
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
