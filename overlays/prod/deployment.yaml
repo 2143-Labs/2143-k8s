@@ -14,3 +14,13 @@ spec:
         - name: S3_CHUNK_TIMEOUT
           # how many seconds to upload the above amount of data
           value: "120"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-exit
+spec:
+  template:
+    spec:
+      nodeSelector:
+        doks.digitalocean.com/node-pool: pool-medium
