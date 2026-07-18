@@ -44,18 +44,9 @@ spec:
               namespace: default
               format: pem
 
-        spire-agent:
-          trustBundleFormat: pem
-          tolerations:
-            - key: wifi
-              operator: Exists
-              effect: NoSchedule
+        spire-agent: {}
 
-        spiffe-csi-driver:
-          tolerations:
-            - key: wifi
-              operator: Exists
-              effect: NoSchedule
+        spiffe-csi-driver: {}
 
         spiffe-oidc-discovery-provider:
           enabled: false
@@ -69,3 +60,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - SkipHooks=true
