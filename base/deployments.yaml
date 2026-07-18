@@ -123,19 +123,12 @@ spec:
           value: ""
         - name: TEMPORAL_ADDRESS
           value: "temporal-grpc.john2143.com:7233"
-        - name: TEMPORAL_TLS_CERT_DIR
-          value: "/etc/temporal-certs"
-        - name: POCKETID_TEMPORAL_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: oauth-creds
-              key: POCKETID_TEMPORAL_CLIENT_ID
-        - name: POCKETID_TOKEN_URL
-          value: "https://au.2143.me/api/oidc/token"
-        - name: POCKETID_TEMPORAL_RESOURCE
-          value: "https://temporal.john2143.com"
-        - name: POCKETID_TEMPORAL_SCOPE
-          value: "john2143-com:write"
+        - name: TEMPORAL_TLS
+          value: "true"
+        - name: TEMPORAL_TLS_CA_PATH
+          value: "/etc/temporal-certs/ca.crt"
+        - name: TEMPORAL_TLS_SERVER_NAME
+          value: "temporal-grpc.john2143.com"
 
         resources:
           requests:
