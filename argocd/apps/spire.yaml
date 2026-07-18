@@ -1,25 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: spire-child
+  name: spire
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: prod
+  project: default
   source:
-    chart: spire-nested
+    chart: spire
     repoURL: https://spiffe.github.io/helm-charts-hardened/
     targetRevision: 0.29.0
     helm:
       releaseName: spire
       values: |
         global:
+          installAndUpgradeHooks:
+            enabled: false
           spire:
             trustDomain: kube.john2143.com
-            clusterName: "do-john2143"
+            clusterName: do-john2143
             jwtIssuer: https://spiffe.john2143.com
-            upstreamSpireAddress: spire.john2143.com
             caSubject:
               country: US
               organization: john2143
@@ -28,37 +29,39 @@ spec:
               enabled: true
             namespaces:
               create: true
+            ingressControllerType: other
 
-        tags:
-          nestedChildFull: true
-
-        internal-spire-server:
-          controllerManager:
-            className: spire-mgmt-spire-internal-server
+        spire-server:
           persistence:
             type: pvc
             size: 1Gi
             accessMode: ReadWriteOnce
-            storageClass: "do-block-storage"
+            storageClass: do-block-storage
+          bundleConfigMap: spire-bundle-upstream
+          bundlePublisher:
+            k8sConfigMap:
+              enabled: true
+              namespace: default
+              format: pem
 
-        upstream-spire-agent:
-          workloadAttestor:
-            k8s:
-              disableContainerSelectors: false
-              skipKubeletVerification: true
-              useNewContainerLocator: false
+        spire-agent:
+          trustBundleFormat: pem
+          tolerations:
+            - key: wifi
+              operator: Exists
+              effect: NoSchedule
 
-        downstream-spire-agent:
-          workloadAttestor:
-            k8s:
-              disableContainerSelectors: false
-              skipKubeletVerification: true
-              useNewContainerLocator: false
+        spiffe-csi-driver:
+          tolerations:
+            - key: wifi
+              operator: Exists
+              effect: NoSchedule
+
         spiffe-oidc-discovery-provider:
           enabled: false
   destination:
     server: https://kubernetes.default.svc
-    namespace: spire-mgmt
+    namespace: spire-server
   syncPolicy:
     automated:
       prune: true
