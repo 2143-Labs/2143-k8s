@@ -24,7 +24,7 @@ images:
   newTag: openfront-api-discordbot-latest
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "197"
+  newTag: "199"
 - name: openfrontpro-sim:latest
   newName: ghcr.io/2143-labs/openfrontpro-sim
   newTag: openfrontpro-latest
