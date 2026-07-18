@@ -49,6 +49,9 @@ spec:
           name: temporal-certs
           readOnly: true
         env:
+        - name: RUN_MODE
+          value: "server"
+
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: "0"
         - name: S3_ENDPOINT_URL
