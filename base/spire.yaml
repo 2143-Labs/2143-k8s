@@ -161,7 +161,7 @@ data:
                       "configmap_key": "bundle.spiffe",
                       "configmap_name": "spire-bundle-upstream",
                       "format": "spiffe",
-                      "namespace": "default"
+                      "namespace": "spire-system"
                     }
                   }
                 ]
@@ -329,7 +329,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: spire-bundle-upstream
-  namespace: default
+  namespace: spire-system
 rules:
   - apiGroups: [""]
     resources: [configmaps]
@@ -344,7 +344,7 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: spire-bundle-upstream
-  namespace: default
+  namespace: spire-system
 
 subjects:
 - kind: ServiceAccount
@@ -643,7 +643,7 @@ spec:
           emptyDir: {}
         - name: spire-bundle
           configMap:
-            name: "spire-bundle"
+            name: "spire-bundle-upstream"
         - name: spire-token
           projected:
             sources:
@@ -682,7 +682,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: spire-server
-        checksum/config: 3d97f03d2e7aa687b998c6780e5dcc677032d6b0e2858b0f558264101f7ce8fa
+        checksum/config: d4b31a5b590cefc074f3d73b64fd8034b3a861ef74e41af7be9bf9afb0f5a9b4
         checksum/config2: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         checksum/config3: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         checksum/configTornjak: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
