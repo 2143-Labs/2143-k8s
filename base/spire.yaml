@@ -1,0 +1,851 @@
+---
+# Source: spire/templates/namespaces.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spire-system
+  labels:
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/warn: privileged
+---
+# Source: spire/templates/namespaces.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spire-server
+  labels:
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Source: spire/charts/spiffe-csi-driver/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spire-spiffe-csi-driver
+  namespace: spire-system
+  labels:
+    helm.sh/chart: spiffe-csi-driver-0.1.0
+    app.kubernetes.io/name: spiffe-csi-driver
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "0.2.7"
+    app.kubernetes.io/managed-by: Helm
+
+---
+# Source: spire/charts/spire-agent/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "spire-agent"
+  namespace: "spire-system"
+  labels:
+    helm.sh/chart: "spire-agent-0.1.0"
+    app.kubernetes.io/name: "agent"
+    app.kubernetes.io/instance: "spire"
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: "Helm"
+
+---
+# Source: spire/charts/spire-server/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spire-server
+  namespace: spire-server
+  labels:
+    helm.sh/chart: spire-server-0.1.0
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: Helm
+
+---
+# Source: spire/charts/spire-agent/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "spire-agent"
+  namespace: "spire-system"
+data:
+  agent.conf: |
+    {
+      "agent": {
+        "data_dir": "/var/lib/spire",
+        "log_format": "text",
+        "log_level": "info",
+        "rebootstrap_delay": "10m",
+        "rebootstrap_mode": "always",
+        "server_address": "spire-server.spire-server",
+        "server_port": "443",
+        "socket_path": "/tmp/spire-agent/public/spire-agent.sock",
+        "trust_bundle_format": "spiffe",
+        "trust_bundle_path": "/run/spire/bundle/bundle.spiffe",
+        "trust_domain": "kube.john2143.com"
+      },
+      "health_checks": {
+        "bind_address": "0.0.0.0",
+        "bind_port": "9982",
+        "listener_enabled": true,
+        "live_path": "/live",
+        "ready_path": "/ready"
+      },
+      "plugins": {
+        "KeyManager": [
+          {
+            "memory": {
+              "plugin_data": null
+            }
+          }
+        ],
+        "NodeAttestor": [
+          {
+            "k8s_psat": {
+              "plugin_data": {
+                "cluster": "do-john2143"
+              }
+            }
+          }
+        ],
+        "WorkloadAttestor": [
+          {
+            "k8s": {
+              "plugin_data": {
+                "disable_container_selectors": false,
+                "skip_kubelet_verification": true,
+                "use_new_container_locator": true,
+                "verbose_container_locator_logs": false
+              }
+            }
+          }
+        ]
+      },
+      "telemetry": [
+        {
+          "Prometheus": [
+            {
+              "host": "0.0.0.0",
+              "port": 9988
+            }
+          ]
+        }
+      ]
+    }
+
+---
+# Source: spire/charts/spire-server/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-server
+  namespace: spire-server
+data:
+  server.conf: |
+    {
+      "health_checks": {
+        "bind_address": "0.0.0.0",
+        "bind_port": "8080",
+        "listener_enabled": true,
+        "live_path": "/live",
+        "ready_path": "/ready"
+      },
+      "plugins": {
+        "BundlePublisher": [
+          {
+            "k8s_configmap": {
+              "plugin_data": {
+                "clusters": [
+                  {
+                    "chart-internal": {
+                      "configmap_key": "bundle.spiffe",
+                      "configmap_name": "spire-bundle-upstream",
+                      "format": "spiffe",
+                      "namespace": "default"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "DataStore": [
+          {
+            "sql": {
+              "plugin_data": {
+                "connection_string": "/run/spire/data/datastore.sqlite3",
+                "database_type": "sqlite3",
+                "disable_migration": false,
+                "max_idle_conns": 2,
+                "max_open_conns": 100
+              }
+            }
+          }
+        ],
+        "KeyManager": [
+          {
+            "disk": {
+              "plugin_data": {
+                "keys_path": "/run/spire/data/keys.json"
+              }
+            }
+          }
+        ],
+        "NodeAttestor": [
+          {
+            "k8s_psat": {
+              "plugin_data": {
+                "clusters": [
+                  {
+                    "do-john2143": {
+                      "allowed_node_label_keys": [],
+                      "allowed_pod_label_keys": [],
+                      "audience": [
+                        "spire-server"
+                      ],
+                      "service_account_allow_list": [
+                        "spire-system:spire-agent"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "server": {
+        "audit_log_enabled": false,
+        "bind_address": "0.0.0.0",
+        "bind_port": "8081",
+        "ca_key_type": "rsa-2048",
+        "ca_subject": [
+          {
+            "common_name": "kube.john2143.com",
+            "country": [
+              "US"
+            ],
+            "organization": [
+              "john2143"
+            ]
+          }
+        ],
+        "ca_ttl": "24h",
+        "data_dir": "/run/spire/data",
+        "default_jwt_svid_ttl": "1h",
+        "default_x509_svid_ttl": "4h",
+        "jwt_issuer": "https://spiffe.john2143.com",
+        "log_format": "text",
+        "log_level": "info",
+        "ratelimit": {
+          "attestation": true,
+          "signing": true
+        },
+        "trust_domain": "kube.john2143.com"
+      },
+      "telemetry": [
+        {
+          "Prometheus": [
+            {
+              "host": "0.0.0.0",
+              "port": 9988
+            }
+          ]
+        }
+      ]
+    }
+
+---
+# Source: spire/charts/spire-agent/templates/roles.yaml
+# Required cluster role to allow spire-agent to query k8s API server
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: "spire-agent"
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - nodes
+      - nodes/proxy
+    verbs: ["get"]
+---
+# Source: spire/charts/spire-server/templates/roles.yaml
+# ClusterRole to allow spire-server node attestor to query Token Review API
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spire-server-spire-server
+rules:
+  - apiGroups: [authentication.k8s.io]
+    resources: [tokenreviews]
+    verbs:
+      - get
+      - watch
+      - list
+      - create
+  - apiGroups: [""]
+    resources: [nodes, pods]
+    verbs:
+      - get
+      - list
+---
+# Source: spire/charts/spire-agent/templates/roles.yaml
+# Binds above cluster role to spire-agent service account
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: "spire-agent"
+subjects:
+  - kind: ServiceAccount
+    name: "spire-agent"
+    namespace: "spire-system"
+roleRef:
+  kind: ClusterRole
+  name: "spire-agent"
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Source: spire/charts/spire-server/templates/roles.yaml
+# Binds above cluster role to spire-server service account
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spire-server-spire-server
+
+subjects:
+- kind: ServiceAccount
+  name: spire-server
+  namespace: spire-server
+roleRef:
+  kind: ClusterRole
+  name: spire-server-spire-server
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Source: spire/charts/spire-server/templates/roles.yaml
+# Role to be able to push certificate bundles to a configmap
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spire-bundle-upstream
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    resourceNames: [spire-bundle-upstream]
+    verbs:
+      - get
+      - patch
+      - create
+---
+# Source: spire/charts/spire-server/templates/roles.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spire-bundle-upstream
+  namespace: default
+
+subjects:
+- kind: ServiceAccount
+  name: spire-server
+  namespace: spire-server
+roleRef:
+  kind: Role
+  name: spire-bundle-upstream
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: spire/charts/spire-server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: spire-server
+  namespace: spire-server
+  labels:
+    helm.sh/chart: spire-server-0.1.0
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: 443
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: spire
+
+---
+# Source: spire/charts/spiffe-csi-driver/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: spire-spiffe-csi-driver
+  namespace: spire-system
+  labels:
+    helm.sh/chart: spiffe-csi-driver-0.1.0
+    app.kubernetes.io/name: spiffe-csi-driver
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "0.2.7"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spiffe-csi-driver
+      app.kubernetes.io/instance: spire
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: spiffe-csi-driver
+        app.kubernetes.io/instance: spire
+    spec:
+      serviceAccountName: spire-spiffe-csi-driver
+      
+      priorityClassName: system-node-critical
+      containers:
+        # This is the container which runs the SPIFFE CSI driver.
+        - name: spiffe-csi-driver
+          image: "ghcr.io/spiffe/spiffe-csi-driver:0.2.7"
+          imagePullPolicy: IfNotPresent
+          args: [
+            "-workload-api-socket-dir", "/spire-agent-socket",
+            "-plugin-name", "csi.spiffe.io",
+            "-csi-socket-path", "/spiffe-csi/csi.sock",
+          ]
+          env:
+            # The CSI driver needs a unique node ID. The node name can be
+            # used for this purpose.
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            # The volume containing the SPIRE agent socket. The SPIFFE CSI
+            # driver will mount this directory into containers.
+            - mountPath: /spire-agent-socket
+              name: spire-agent-socket-dir
+              readOnly: true
+            # The volume that will contain the CSI driver socket shared
+            # with the kubelet and the driver registrar.
+            - mountPath: /spiffe-csi
+              name: spiffe-csi-socket-dir
+            # The volume containing mount points for containers.
+            - mountPath: /var/lib/kubelet/pods
+              mountPropagation: Bidirectional
+              name: mountpoint-dir
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            privileged: true
+            readOnlyRootFilesystem: true
+          resources:
+            {}
+        # This container runs the CSI Node Driver Registrar which takes care
+        # of all the little details required to register a CSI driver with
+        # the kubelet.
+        - name: node-driver-registrar
+          image: "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.15.0"
+          imagePullPolicy: IfNotPresent
+          args: [
+            "-csi-address", "/spiffe-csi/csi.sock",
+            "-kubelet-registration-path", "/var/lib/kubelet/plugins/csi.spiffe.io/csi.sock",
+            "-health-port", "9809"
+          ]
+          env:
+          volumeMounts:
+            # The registrar needs access to the SPIFFE CSI driver socket
+            - mountPath: /spiffe-csi
+              name: spiffe-csi-socket-dir
+            # The registrar needs access to the Kubelet plugin registration
+            # directory
+            - name: kubelet-plugin-registration-dir
+              mountPath: /registration
+          ports:
+            - containerPort: 9809
+              name: healthz
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          resources:
+            {}
+      volumes:
+        - name: spire-agent-socket-dir
+          hostPath:
+            path: /run/spire/agent-sockets
+            type: DirectoryOrCreate
+        # This volume is where the socket for kubelet->driver communication lives
+        - name: spiffe-csi-socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi.spiffe.io
+            type: DirectoryOrCreate
+        # This volume is where the SPIFFE CSI driver mounts volumes
+        - name: mountpoint-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: Directory
+        # This volume is where the node-driver-registrar registers the plugin
+        # with kubelet
+        - name: kubelet-plugin-registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry
+            type: Directory
+
+---
+# Source: spire/charts/spire-agent/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: "spire-agent"
+  namespace: "spire-system"
+  labels:
+    helm.sh/chart: "spire-agent-0.1.0"
+    app.kubernetes.io/name: "agent"
+    app.kubernetes.io/instance: "spire"
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/component: "default"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "agent"
+      app.kubernetes.io/instance: "spire"
+      app.kubernetes.io/component: "default"
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: spire-agent
+        checksum/config: "d4e81947b4a53a941fa29077dc5726c34fecbc87ec142b0bfc806bd2f0e5f301"
+      labels:
+        app.kubernetes.io/name: "agent"
+        app.kubernetes.io/instance: "spire"
+        app.kubernetes.io/component: "default"
+    spec:
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      serviceAccountName: "spire-agent"
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsUser: 1000
+      
+      priorityClassName: system-node-critical
+      initContainers:
+        - name: ensure-alternate-names
+          image: "cgr.dev/chainguard/bash:latest@sha256:90041f375e30f41aa7e0390075d8a69dc61900771d52fa98d63ee5d03d866a58"
+          imagePullPolicy: "IfNotPresent"
+          command: ["bash", "-xc"]
+          args:
+            - |
+              cd /run/spire/agent-sockets
+              L=`readlink socket`
+              [ "x$L" != "xspire-agent.sock" ] && rm -f socket
+              [ ! -L socket ] && ln -s spire-agent.sock socket
+              L=`readlink api.sock`
+              [ "x$L" != "xspire-agent.sock" ] && rm -f api.sock
+              [ ! -L api.sock ] && ln -s spire-agent.sock api.sock
+              [ -L spire-agent.sock ] && rm -f spire-agent.sock
+              exit 0
+          resources:
+            {}
+          volumeMounts:
+            - name: spire-agent-socket-dir
+              mountPath: /run/spire/agent-sockets
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+        - name: fsgroupfix
+          image: "cgr.dev/chainguard/bash:latest@sha256:90041f375e30f41aa7e0390075d8a69dc61900771d52fa98d63ee5d03d866a58"
+          imagePullPolicy: "IfNotPresent"
+          command: ["bash", "-c"]
+          args:
+            - |
+              chown -R "1000:1000" /run/spire/agent-sockets /tmp/spire-agent/private
+              chown -R "1000:1000" /var/lib/spire
+          resources:
+            {}
+          volumeMounts:
+            - name: spire-agent-socket-dir
+              mountPath: /run/spire/agent-sockets
+            - name: spire-agent-persistence
+              mountPath: /var/lib/spire
+            - name: spire-agent-admin-socket-dir
+              mountPath: /tmp/spire-agent/private
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+      containers:
+        - name: "spire-agent"
+          image: "ghcr.io/spiffe/spire-agent:1.15.1"
+          imagePullPolicy: "IfNotPresent"
+          args: ["-config", "/opt/spire/conf/agent/agent.conf"]
+          securityContext:
+            {}
+          env:
+            - name: PATH
+              value: "/opt/spire/bin:/bin"
+          ports:
+            - containerPort: 9982
+              name: healthz
+            - containerPort: 9988
+              name: prom
+          volumeMounts:
+            - name: spire-config
+              mountPath: /opt/spire/conf/agent
+              readOnly: true
+            - name: spire-agent-persistence
+              mountPath: /var/lib/spire
+            - name: spire-bundle
+              readOnly: true
+              mountPath: /run/spire/bundle
+            - name: spire-agent-socket-dir
+              mountPath: /tmp/spire-agent/public
+              readOnly: false
+            - name: spire-token
+              mountPath: /var/run/secrets/tokens
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: healthz
+            initialDelaySeconds: 15
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: healthz
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            {}
+      volumes:
+        - name: spire-config
+          configMap:
+            name: spire-agent
+        - name: spire-agent-admin-socket-dir
+          emptyDir: {}
+        - name: spire-agent-persistence
+          emptyDir: {}
+        - name: spire-bundle
+          configMap:
+            name: "spire-bundle"
+        - name: spire-token
+          projected:
+            sources:
+            - serviceAccountToken:
+                path: spire-agent
+                expirationSeconds: 7200
+                audience: spire-server
+        - name: spire-agent-socket-dir
+          hostPath:
+            path: /run/spire/agent-sockets
+            type: DirectoryOrCreate
+
+---
+# Source: spire/charts/spire-server/templates/server-resource.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spire-server
+  namespace: spire-server
+  labels:
+    helm.sh/chart: spire-server-0.1.0
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  serviceName: spire-server
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: server
+      app.kubernetes.io/instance: spire
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: spire-server
+        checksum/config: 3d97f03d2e7aa687b998c6780e5dcc677032d6b0e2858b0f558264101f7ce8fa
+        checksum/config2: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/config3: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configTornjak: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+      labels:
+        app.kubernetes.io/name: server
+        app.kubernetes.io/instance: spire
+        app.kubernetes.io/component: server
+        component: server
+        release: spire
+        release-namespace: spire-server
+    spec:
+      serviceAccountName: spire-server
+      shareProcessNamespace: true
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsUser: 1000
+      
+      priorityClassName: system-cluster-critical
+      containers:
+        - name: spire-server
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          image: "ghcr.io/spiffe/spire-server:1.15.1"
+          imagePullPolicy: IfNotPresent
+          args:
+            - -expandEnv
+            - -config
+            - /run/spire/config/server.conf
+          env:
+          - name: PATH
+            value: "/opt/spire/bin:/bin"
+          ports:
+            - name: grpc
+              containerPort: 8081
+              protocol: TCP
+            - containerPort: 8080
+              name: healthz
+            - containerPort: 9988
+              name: prom
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: healthz
+            failureThreshold: 2
+            initialDelaySeconds: 15
+            periodSeconds: 60
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {}
+          volumeMounts:
+            - name: spire-server-socket
+              mountPath: /tmp/spire-server/private
+              readOnly: false
+            - name: spire-config
+              mountPath: /run/spire/config
+              readOnly: true
+            - name: spire-data
+              mountPath: /run/spire/data
+              readOnly: false
+            - name: server-tmp
+              mountPath: /tmp
+              readOnly: false
+        
+      volumes:
+        - name: server-tmp
+          emptyDir: {}
+        - name: spire-config
+          configMap:
+            name: spire-server
+        - name: spire-server-socket
+          emptyDir: {}
+        - name: spire-controller-manager-tmp
+          emptyDir: {}
+        - name: spire-data
+          emptyDir: {}
+
+---
+# Source: spire/charts/spiffe-csi-driver/templates/spiffe-csi-driver.yaml
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  name: "csi.spiffe.io"
+
+spec:
+  # Only ephemeral, inline volumes are supported. There is no need for a
+  # controller to provision and attach volumes.
+  attachRequired: false
+
+  # Request the pod information which the CSI driver uses to verify that an
+  # ephemeral mount was requested.
+  podInfoOnMount: true
+
+  # Don't change ownership on the contents of the mount since the Workload API
+  # Unix Domain Socket is typically open to all (i.e. 0777).
+  fsGroupPolicy: None
+
+  # Declare support for ephemeral volumes only.
+  volumeLifecycleModes:
+    - Ephemeral
+---
+# Source: spire/charts/spire-server/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "spire-server-test-connection"
+  namespace: spire-server
+  labels:
+    helm.sh/chart: spire-server-0.1.0
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: test
+  annotations:
+    "helm.sh/hook": test
+spec:
+  securityContext:
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    runAsGroup: 1000
+    runAsUser: 1000
+  containers:
+    - name: curl
+      image: "cgr.dev/chainguard/bash:latest@sha256:90041f375e30f41aa7e0390075d8a69dc61900771d52fa98d63ee5d03d866a58"
+      command: ['bash']
+      args:
+        - -c
+        - |
+          curl -f -s 'https://spire-server:443'
+          NOCA=$?
+          curl -k -f -s 'https://spire-server:443'
+          IGNORECA=$?
+          echo $NOCA $IGNORECA
+          if [ $NOCA -eq 60 ]; then
+            if [ $IGNORECA -eq 22 -o $IGNORECA -eq 55 -o $IGNORECA -eq 56 ]; then
+              # We were able to connect to the server but didn't recognize the ca (60) and the page not found (22) because we're not using grpc
+              exit 0
+            fi
+          fi
+          exit 1
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+  restartPolicy: Never
+
