@@ -16,20 +16,6 @@ patches:
 - path: gateway.yaml
 - path: deployment.yaml
 - path: httproute.yaml
-#- path: httproute.yaml
-# Remove PocketID Temporal env vars (now mTLS-only, highest index first)
-- target:
-    kind: Deployment
-    name: john2143-com
-  patch: |
-    - op: remove
-      path: /spec/template/spec/containers/0/env/14
-    - op: remove
-      path: /spec/template/spec/containers/0/env/13
-    - op: remove
-      path: /spec/template/spec/containers/0/env/12
-    - op: remove
-      path: /spec/template/spec/containers/0/env/11
 
 
 images:
@@ -38,7 +24,7 @@ images:
   newTag: openfront-api-discordbot-latest
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "193"
+  newTag: "194"
 - name: openfrontpro-sim:latest
   newName: ghcr.io/2143-labs/openfrontpro-sim
   newTag: openfrontpro-latest
