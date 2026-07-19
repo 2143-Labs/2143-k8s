@@ -14,20 +14,14 @@ spec:
       labels:
         app: john2143-com
         servicegroup: "mine"
+      annotations:
+        linkerd.io/inject: enabled
     spec:
       serviceAccountName: john2143-com
       volumes:
       - name: data-volume
         persistentVolumeClaim:
           claimName: files-pvc
-      - name: temporal-certs
-        secret:
-          secretName: temporal-mtls-client
-      - name: spiffe-workload-api
-        csi:
-          driver: csi.spiffe.io
-          readOnly: true
-
       #securityContext:
         #runAsUser: 1000
         #runAsGroup: 1000
@@ -42,12 +36,6 @@ spec:
         volumeMounts:
         - mountPath: /app/juushFiles
           name: data-volume
-        - mountPath: /spiffe-workload-api
-          name: spiffe-workload-api
-          readOnly: true
-        - mountPath: /etc/temporal-certs
-          name: temporal-certs
-          readOnly: true
         env:
         - name: RUN_MODE
           value: "server"
@@ -76,8 +64,6 @@ spec:
             secretKeyRef:
               name: minio-credentials
               key: MINIO_SECRET_KEY
-        - name: SPIFFE_ENDPOINT_SOCKET
-          value: "unix:///spiffe-workload-api/spire-agent.sock"
 
         - name: BUCKET
           value: imagehost-files
@@ -124,12 +110,6 @@ spec:
           value: ""
         - name: TEMPORAL_ADDRESS
           value: "temporal-grpc.john2143.com:7233"
-        - name: TEMPORAL_TLS
-          value: "true"
-        - name: TEMPORAL_TLS_CA_PATH
-          value: "/etc/temporal-certs/ca.crt"
-        - name: TEMPORAL_TLS_SERVER_NAME
-          value: "temporal-grpc.john2143.com"
 
         resources:
           requests:
@@ -184,11 +164,11 @@ spec:
       labels:
         app: mongo
         servicegroup: "mine"
+      annotations:
+        linkerd.io/inject: disabled
     spec:
       volumes:
       - name: mongodata
-        #emptyDir:
-          #sizeLimit: 50Mi
         persistentVolumeClaim:
           claimName: mongo-pvc
 
