@@ -44,7 +44,7 @@ spec:
               namespace: default
               format: pem
           controllerManager:
-            enabled: false
+            enabled: true
 
         spire-agent: {}
 
