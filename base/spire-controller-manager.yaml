@@ -1,0 +1,226 @@
+---
+# ConfigMap for SPIRE Controller Manager configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-controller-manager
+  namespace: spire-server
+  labels:
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: spire
+    app.kubernetes.io/version: "1.15.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  controller-manager-config.yaml: |
+    apiVersion: spire.spiffe.io/v1alpha1
+    kind: ControllerManagerConfig
+    metadata:
+      name: spire-controller-manager
+      namespace: spire-server
+    metrics:
+      bindAddress: 0.0.0.0:8082
+    health:
+      healthProbeBindAddress: 0.0.0.0:8083
+    gcInterval: 1e+10
+    logLevel: info
+    logEncoding: console
+    leaderElection:
+      leaderElect: true
+      resourceName: 6f304bd2.spiffe.io
+      resourceNamespace: spire-server
+      leaseDuration: 15s
+      renewDeadline: 10s
+      retryPeriod: 2s
+    validatingWebhookConfigurationName: spire-server-spire-controller-manager-webhook
+    entryIDPrefix: do-john2143
+    clusterName: do-john2143
+    trustDomain: kube.john2143.com
+    ignoreNamespaces:
+      - kube-system
+      - kube-public
+      - local-path-storage
+      - openshift-.*
+      - ibm-.*
+    spireServerSocketPath: "/tmp/spire-server/private/api.sock"
+    className: "spire-server-spire"
+    watchClassless: true
+    parentIDTemplate: "spiffe://{{ .TrustDomain }}/spire/agent/k8s_psat/{{ .ClusterName }}/{{ .NodeMeta.UID }}"
+    reconcile:
+      clusterSPIFFEIDs: true
+      clusterStaticEntries: true
+      clusterFederatedTrustDomains: true
+---
+# ClusterRole for SPIRE Controller Manager
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: spire-server-spire-controller-manager
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterfederatedtrustdomains
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterfederatedtrustdomains/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterfederatedtrustdomains/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterspiffeids
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterspiffeids/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterspiffeids/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterstaticentries
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterstaticentries/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - spire.spiffe.io
+  resources:
+  - clusterstaticentries/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+# ClusterRoleBinding for SPIRE Controller Manager
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: spire-server-spire-controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: spire-server-spire-controller-manager
+subjects:
+- kind: ServiceAccount
+  name: spire-server
+  namespace: spire-server
+---
+# Role for SPIRE Controller Manager leader election
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spire-server-leader-election
+  namespace: spire-server
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - patch
+  - delete
+---
+# RoleBinding for SPIRE Controller Manager leader election
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spire-server-leader-election
+  namespace: spire-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: spire-server-leader-election
+subjects:
+- kind: ServiceAccount
+  name: spire-server
+  namespace: spire-server
