@@ -16,6 +16,7 @@ patches:
 - path: gateway.yaml
 - path: deployment.yaml
 - path: httproute.yaml
+# FluxCD migration complete — deployed via flux-system bootstrap
 
 
 images:
