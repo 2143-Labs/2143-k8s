@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: tor-data
+  namespace: default
 spec:
   accessModes: [ReadWriteOnce]
   resources:
@@ -12,6 +13,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tor-middle
+  namespace: default
 spec:
   strategy:
     type: Recreate
@@ -67,6 +69,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: tor-config
+  namespace: default
 data:
   torrc: |
     Nickname 2143Me
@@ -86,6 +89,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tor-middle
+  namespace: default
 spec:
   type: NodePort
   ports:
