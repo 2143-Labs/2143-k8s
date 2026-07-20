@@ -1,118 +1,115 @@
-# Example
-`curl -k https://2143.christmas/tea/1234`
-## Kubernetes Deployment with loadbalancer:
-![Kubernetes Deployment](http://2143.moe/f/uZsk.png)
+# 2143-k8s
 
-# About each file
-### `coffee.yaml`:
-This defines two demo apps and services: `tea` and `coffee`
-### `gateway.yaml`:
-This defines the Gateway: `cafe`. A corresponding pod will be created in the
-`nginx-gateway` namespace.
+FluxCD-managed Kubernetes cluster running on DigitalOcean. All infrastructure
+is defined as code — Git is the source of truth, FluxCD handles reconciliation.
 
-This gateway is deployed into the default namespace. Apps can only communicate
-within their own namespace by default. This can be changed with either a
-`ReferenceGrant` or by setting `allowedRoutes` to `All`.
+## What's deployed
 
-This file also defines a `ReferenceGrant` that allows the `cafe` gateway to
-read Secrets from the `certificate` namespace.
-### `httproute.yaml`:
-This file defines two `HTTPRoute`s in the `cafe` gateway. It routes `/tea` to the `tea` service
-and `/coffee` to the `coffee` service.
+| Service | Description |
+|---|---|
+| **john2143.com** | Image host (ghcr.io/john2143/john2143.com) |
+| **Tor middle relay** | `2143Me` — non-exit relay on port 30901 |
+| **Tailscale exit node** | VPN exit for tailnet |
+| **DERP relay** | Tailscale DERP server |
+| **OpenFrontPro** | API + Discord bot |
 
-It also defines an HTTP -> HTTPS redirect.
-### `nginx-crds.yaml`:
-https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric/v1.4.0/deploy/crds.yaml
-### `nginx-fabric.yaml`:
-https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric/v1.4.0/deploy/default/deploy.yaml
-### `certificates.yaml`:
-This is just a test certificate, replace the secret with your own
+## Directory structure
 
-# Installation
-## Create Cluster
+```
+.
+├── base/                   # Shared Kustomize base layer
+│   ├── deployments.yaml    # john2143-com, tailscale-exit
+│   ├── deployment-tor.yaml
+│   ├── deployments-derp.yaml
+│   ├── deployments-openfrontpro.yaml
+│   ├── deployments-openfront-discordbot.yaml
+│   ├── gateway.yaml        # nginx-gateway-fabric Gateway
+│   ├── httproute.yaml
+│   ├── tcproute.yaml
+│   └── kustomization.yaml
+├── overlays/
+│   ├── prod/               # Production overlay (patches, certs, PVCs, HPA)
+│   └── dev/                # Dev overlay
+├── clusters/prod/flux-system/  # FluxCD bootstrap + resources
+│   ├── gotk-components.yaml    # Flux controllers (source, kustomize, notification)
+│   ├── gitrepository.yaml      # Git source definition
+│   ├── kustomization-prod.yaml # Syncs overlays/prod every 1m
+│   ├── notification-provider.yaml  # GitHub commit status provider
+│   └── notification-alert.yaml     # Alerts on prod Kustomization events
+├── Dockerfile.tor          # Tor relay image
+├── Dockerfile.derper       # DERP relay image
+└── .github/workflows/      # CI: image builds, deploy status
+```
+
+## GitOps flow
+
+```
+Push to main  →  FluxCD sources the repo (1m interval)
+              →  Kustomize builds overlays/prod
+              →  Applies to cluster
+              →  Health checks: john2143-com, tor-middle, tailscale-exit
+```
+
+Every commit to `main` gets a `Flux/prod` status on GitHub — pending during
+reconciliation, then success or failure with the reconciliation message.
+
+## Making changes
+
+PR and merge to `main`. Flux picks it up within 60 seconds. No `kubectl apply`
+needed — the cluster converges to match the repo.
+
+To apply manually (rare):
 ```bash
-kind create cluster --name net
+kubectl apply -k overlays/prod/
 ```
 
-## Install CRDs
-```bash
-kubectl kustomize "https://github.com/nginxinc/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v1.4.0" | kubectl apply -f -
-```
+## CI/CD
 
-## Install cert-manager w/ api gateway
-```bash
-cmctl x install
-helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager \
-        --set config.apiVersion="controller.config.cert-manager.io/v1alpha1" \
-        --set config.kind="ControllerConfiguration" \
-        --set config.enableGatewayAPI=tru
-```
+### Tor relay — weekly rebuilds
 
-## Deploy everything here
-```bash
-kubectl apply -f .
-```
+[`.github/workflows/tor.yml`](.github/workflows/tor.yml) runs every Monday at 6am UTC
+and on pushes to `Dockerfile.tor`:
 
-## Test
-```bash
-curl -k https://2143.christmas/tea/1234
-curl -k https://2143.christmas/coffee/asdf
-```
+1. Builds a fresh Tor image from `debian:stable-slim` + the Tor Project APT repo
+2. Pushes to `ghcr.io/2143-labs/tor` with a run-number tag + `:latest`
+3. Updates `base/kustomization.yaml` with the new pinned tag and commits
 
-# Cert-manager
+Flux sees the commit, syncs, and the `Recreate` strategy rolls out a new pod.
 
-```
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
-```
+### DERP relay
 
-## Tor Middle Relay — deployed via FluxCD
+[`.github/workflows/derper.yml`](.github/workflows/derper.yml) builds on pushes to
+`Dockerfile.derper`. Pushes `ghcr.io/2143-labs/derper:latest`.
 
-A Tor middle relay (`2143Me`) runs as a Kubernetes deployment managed by
-FluxCD. It listens on port `30901` (NodePort via hostNetwork).
-
-## Configuration
-
-Config is in `base/deployment-tor.yaml` + `base/kustomization.yaml`:
+## Tor middle relay
 
 | Setting | Value |
 |---|---|
 | Nickname | `2143Me` |
 | Contact | `tor@2143.me` |
-| ORPort | `30901` |
+| ORPort | `30901` (hostNetwork NodePort) |
 | Bandwidth | 60 MBit rate / 120 MBit burst |
-| Exit policy | `reject *:*` (middle relay, not exit) |
+| Exit policy | `reject *:*` (middle relay only) |
 
-## Image
+Config: `base/deployment-tor.yaml` + `base/kustomization.yaml`
 
-Built from `Dockerfile.tor` — a minimal `debian:stable-slim` image with Tor
-installed from the official [Tor Project APT repo](https://deb.torproject.org/).
+Image: `ghcr.io/2143-labs/tor` — built from `Dockerfile.tor`
 
-Published to `ghcr.io/2143-labs/tor`.
+Relay status: https://metrics.torproject.org/rs.html#details/6E00E3C03DBDF4FE99F0324337954D458F13DB9A
 
-## Auto-Updates
-
-A [GitHub Actions workflow](.github/workflows/tor.yml) rebuilds the image every
-**Monday at 6am UTC** (and on pushes to `Dockerfile.tor`). Each build:
-
-1. Pulls the latest Tor from `deb.torproject.org`
-2. Pushes the image to ghcr with a unique tag (`github.run_number`) and `:latest`
-3. Updates `base/kustomization.yaml` with the pinned tag and commits
-
-Flux detects the kustomization change, syncs, and the `Recreate` strategy
-rolls out a new pod — no manual involvement needed.
-
-## Verify
+### Verify
 
 ```bash
 kubectl get pods -l app=tor-middle
 kubectl logs -l app=tor-middle --tail=5
 ```
 
-Relay status: https://metrics.torproject.org/rs.html#details/6E00E3C03DBDF4FE99F0324337954D458F13DB9A
+## Bootstrap
 
-## Deployment
+To bootstrap FluxCD onto a cluster:
+```bash
+flux install --components=source-controller,kustomize-controller,notification-controller
+kubectl apply -k clusters/prod/flux-system/
+```
 
-All cluster infrastructure is defined in `clusters/prod/flux-system/` and
-applied by FluxCD's kustomize-controller. The entrypoint is a bootstrap
-kustomization that deploys Flux controllers, the Git source, and the prod
-sync rule.
+The cluster must first have nginx-gateway-fabric and cert-manager installed.
