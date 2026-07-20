@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: 2143-k8s
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/2143-Labs/2143-k8s.git
+  ref:
+    branch: main

@@ -1,0 +1,25 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: prod
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: ./overlays/prod
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: 2143-k8s
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: john2143-com
+      namespace: default
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: tor-middle
+      namespace: default
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: tailscale-exit
+      namespace: default
