@@ -16,7 +16,6 @@ patches:
 - path: gateway.yaml
 - path: deployment.yaml
 - path: httproute.yaml
-- path: spire-server-patch.yaml
 
 
 images:
