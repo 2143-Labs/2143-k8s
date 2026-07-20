@@ -65,10 +65,10 @@ curl -k https://2143.christmas/coffee/asdf
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
 ```
 
-# Tor Middle Relay
+## Tor Middle Relay — deployed via FluxCD
 
 A Tor middle relay (`2143Me`) runs as a Kubernetes deployment managed by
-ArgoCD. It listens on port `30901` (NodePort via hostNetwork).
+FluxCD. It listens on port `30901` (NodePort via hostNetwork).
 
 ## Configuration
 
@@ -98,7 +98,7 @@ A [GitHub Actions workflow](.github/workflows/tor.yml) rebuilds the image every
 2. Pushes the image to ghcr with a unique tag (`github.run_number`) and `:latest`
 3. Updates `base/kustomization.yaml` with the pinned tag and commits
 
-ArgoCD detects the kustomization change, syncs, and the `Recreate` strategy
+Flux detects the kustomization change, syncs, and the `Recreate` strategy
 rolls out a new pod — no manual involvement needed.
 
 ## Verify
@@ -109,3 +109,10 @@ kubectl logs -l app=tor-middle --tail=5
 ```
 
 Relay status: https://metrics.torproject.org/rs.html#details/6E00E3C03DBDF4FE99F0324337954D458F13DB9A
+
+## Deployment
+
+All cluster infrastructure is defined in `clusters/prod/flux-system/` and
+applied by FluxCD's kustomize-controller. The entrypoint is a bootstrap
+kustomization that deploys Flux controllers, the Git source, and the prod
+sync rule.
