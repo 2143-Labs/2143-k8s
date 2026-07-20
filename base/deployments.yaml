@@ -15,7 +15,7 @@ spec:
         app: john2143-com
         servicegroup: "mine"
       annotations:
-        linkerd.io/inject: enabled
+        linkerd.io/inject: disabled
     spec:
       serviceAccountName: john2143-com
       volumes:
