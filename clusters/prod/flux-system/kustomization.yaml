@@ -5,3 +5,5 @@ resources:
   - gotk-components.yaml
   - gitrepository.yaml
   - kustomization-prod.yaml
+  - notification-provider.yaml
+  - notification-alert.yaml
