@@ -41,7 +41,7 @@ spec:
           value: "server"
 
         - name: S3_ENDPOINT_URL
-          value: "https://imagehost-files.nyc3.digitaloceanspaces.com"
+          value: "https://nyc3.digitaloceanspaces.com"
         - name: S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:
