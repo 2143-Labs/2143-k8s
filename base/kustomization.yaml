@@ -23,4 +23,4 @@ resources:
 images:
 - name: tor:latest
   newName: ghcr.io/2143-labs/tor
-  newTag: "13"
+  newTag: "14"
