@@ -4,10 +4,11 @@ on:
   push:
     paths:
       - Dockerfile.derper
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     permissions:
       packages: write
     steps:
@@ -17,9 +18,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.derper
-          push: true
-          tags: ghcr.io/2143-labs/derper:latest
+      - name: Build and push
+        run: |
+          docker build -f Dockerfile.derper -t ghcr.io/2143-labs/derper:latest .
+          docker push ghcr.io/2143-labs/derper:latest
