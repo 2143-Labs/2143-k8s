@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: annicn
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: annicn
+  template:
+    metadata:
+      labels:
+        app: annicn
+      annotations:
+        linkerd.io/inject: disabled
+    spec:
+      securityContext:
+        runAsUser: 101
+        runAsGroup: 101
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+      containers:
+      - name: annicn
+        image: ghcr.io/sooperu/1stanniversary:2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: &port 8000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          failureThreshold: 25
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: annicn
+spec:
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: annicn
