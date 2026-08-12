@@ -25,7 +25,7 @@ spec:
           drop: ["ALL"]
       containers:
       - name: annicn
-        image: ghcr.io/sooperu/1stanniversary:3
+        image: ghcr.io/sooperu/1stanniversary:4
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: &port 8000
