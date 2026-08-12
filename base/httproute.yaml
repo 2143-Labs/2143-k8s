@@ -137,23 +137,3 @@ spec:
     - name: john2143-com
       port: 80
       namespace: default
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: annicn
-spec:
-  parentRefs:
-  - name: apps-gateway
-  hostnames:
-  - "annicn.2143.me"
-  rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-      # name of the service
-    - name: annicn
-      port: 80
-      namespace: default
