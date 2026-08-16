@@ -123,6 +123,19 @@ spec:
       - kind: Secret
         name: i-brick-gay-tls-key-prod
         namespace: default
+  - name: i-dsstar-us
+    hostname: i.dsstar.us
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: i-dsstar-us-tls-key-prod
+        namespace: default
 
   #- name: ewan-m
     #hostname: "m.ewan.green"

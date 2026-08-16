@@ -93,6 +93,17 @@ spec:
       selector:
         dnsZones:
         - 2143.me
+    - http01:
+        gatewayHTTPRoute:
+          parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: apps-gateway
+            namespace: default
+            sectionName: http
+      selector:
+        dnsNames:
+        - i.dsstar.us
     - dns01:
         digitalocean:
           tokenSecretRef:
