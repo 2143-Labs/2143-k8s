@@ -71,10 +71,15 @@ kubectl apply -k overlays/prod/
 and on pushes to `Dockerfile.tor`:
 
 1. Builds a fresh Tor image from `debian:stable-slim` + the Tor Project APT repo
+   (builds with `--no-cache`, so `apt` always re-queries the Tor repo — cached
+   layers are never reused)
 2. Pushes to `ghcr.io/2143-labs/tor` with a run-number tag + `:latest`
-3. Updates `base/kustomization.yaml` with the new pinned tag and commits
+3. Updates the pin in `overlays/prod/kustomization.yaml` (the root kustomization —
+   `images:` declared in `base/` are ignored at render time) and commits
 
-Flux sees the commit, syncs, and the `Recreate` strategy rolls out a new pod.
+The workflow fails if the new tag doesn't land or the rendered output isn't
+pinned to it. Flux sees the commit, syncs, and the `Recreate` strategy rolls out
+a new pod.
 
 ### DERP relay
 

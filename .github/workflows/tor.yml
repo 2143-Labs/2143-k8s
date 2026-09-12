@@ -23,7 +23,9 @@ jobs:
 
       - name: Build and push
         run: |
-          docker build -f Dockerfile.tor \
+          # --no-cache: the apt-get install tor layer would otherwise be reused
+          # from the local docker store and never re-query the Tor APT repo.
+          docker build --pull --no-cache -f Dockerfile.tor \
             -t ghcr.io/2143-labs/tor:${{ github.run_number }} \
             -t ghcr.io/2143-labs/tor:latest .
           docker push ghcr.io/2143-labs/tor:${{ github.run_number }}
@@ -46,7 +48,23 @@ jobs:
         run: |
           kustomize edit set image ghcr.io/2143-labs/tor:latest=ghcr.io/2143-labs/tor:${{ github.run_number }}
 
+      - name: Assert tag bump took effect
+        working-directory: overlays/prod
+        run: |
+          grep -qF 'newTag: "${{ github.run_number }}"' kustomization.yaml \
+            || { echo "tag bump did not land in overlays/prod/kustomization.yaml"; exit 1; }
+
+      - name: Assert rendered image is pinned
+        run: |
+          kustomize build overlays/prod | grep -qF "image: ghcr.io/2143-labs/tor:${{ github.run_number }}" \
+            || { echo "rendered tor image is not pinned to ${{ github.run_number }}"; exit 1; }
+
       - uses: stefanzweifel/git-auto-commit-action@v5
+        id: auto-commit
         with:
           commit_message: "chore: bump tor image to ${{ github.run_number }} [skip ci]"
           file_pattern: overlays/prod/kustomization.yaml
+
+      - name: Fail if bump did not commit
+        if: steps.auto-commit.outputs.changes_detected == 'false'
+        run: exit 1

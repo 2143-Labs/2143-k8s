@@ -1,0 +1,43 @@
+name: Verify kustomize render
+on:
+  push:
+    paths: [base/**, overlays/**]
+  pull_request:
+    paths: [base/**, overlays/**]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kustomize
+        run: |
+          curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz" | sudo tar xz -C /usr/local/bin
+      - name: Build and assert image pins
+        run: |
+          kustomize build overlays/prod > /tmp/render.yaml
+          python3 - <<'EOF'
+          import re, sys
+          render = open('/tmp/render.yaml').read()
+          errors = []
+
+          # nested kustomizations must not declare images — kustomize ignores them
+          base = open('base/kustomization.yaml').read()
+          if re.search(r'^images:', base, re.M):
+              errors.append("base/kustomization.yaml must not declare 'images:' (nested images are ignored at render time); move entries to overlays/prod/kustomization.yaml")
+
+          # every root images entry must actually appear in the rendered output
+          pat = re.compile(r'^\s*-\s*name:\s*(\S+)\s*$\n\s*newName:\s*(\S+)\s*$\n\s*newTag:\s*(\S+)\s*$', re.M)
+          prod = open('overlays/prod/kustomization.yaml').read()
+          entries = list(pat.finditer(prod))
+          for m in entries:
+              expected = m.group(2) + ':' + m.group(3).strip().strip('"').strip("'")
+              if 'image: ' + expected not in render:
+                  errors.append(f"images entry {m.group(1)} -> {expected} not found in rendered output")
+
+          if errors:
+              print('\n'.join(errors))
+              sys.exit(1)
+          print(f"OK: {len(entries)} image pins resolved in render")
+          EOF

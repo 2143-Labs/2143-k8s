@@ -29,6 +29,7 @@ RUN usermod -u 101 debian-tor && \
 USER debian-tor
 
 ENTRYPOINT ["tor"]
-# Built for 3-month relay freeze — rebuild manually via workflow_dispatch if needed
+# Tor installs the current stable from deb.torproject.org at build time;
+# rebuilt weekly on a schedule via .github/workflows/tor.yml (--no-cache).
 
 
