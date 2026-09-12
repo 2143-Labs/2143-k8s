@@ -20,7 +20,4 @@ resources:
 - service-mongo-nodeport.yaml
 - cronjob-ddns-mongo.yaml
 # Add the crds for gateway api
-images:
-- name: tor:latest
-  newName: ghcr.io/2143-labs/tor
-  newTag: "19"
+

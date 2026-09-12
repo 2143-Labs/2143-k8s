@@ -41,12 +41,12 @@ jobs:
         run: |
           curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz" | sudo tar xz -C /usr/local/bin
 
-      - name: Update base image tag
-        working-directory: base
+      - name: Update tor image tag
+        working-directory: overlays/prod
         run: |
-          kustomize edit set image tor:latest=ghcr.io/2143-labs/tor:${{ github.run_number }}
+          kustomize edit set image ghcr.io/2143-labs/tor:latest=ghcr.io/2143-labs/tor:${{ github.run_number }}
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: bump tor image to ${{ github.run_number }} [skip ci]"
-          file_pattern: base/kustomization.yaml
+          file_pattern: overlays/prod/kustomization.yaml
