@@ -20,12 +20,12 @@ patches:
 
 
 images:
-- name: ghcr.io/2143-labs/tor:latest
-  newName: ghcr.io/2143-labs/tor
-  newTag: "19"
 - name: bot:latest
   newName: ghcr.io/2143-labs/openfront-api-discordbot
   newTag: openfront-api-discordbot-latest
+- name: ghcr.io/2143-labs/tor:latest
+  newName: ghcr.io/2143-labs/tor
+  newTag: "20"
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
   newTag: "209"
