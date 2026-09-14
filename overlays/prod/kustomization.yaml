@@ -25,7 +25,7 @@ images:
   newTag: openfront-api-discordbot-latest
 - name: ghcr.io/2143-labs/tor:latest
   newName: ghcr.io/2143-labs/tor
-  newTag: "21"
+  newTag: "23"
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
   newTag: "209"
