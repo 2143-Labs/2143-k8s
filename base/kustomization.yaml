@@ -16,6 +16,7 @@ resources:
 - deployments-derp.yaml
 - deployment-tor.yaml
 - tailscale-exit.yaml
+- wireguard-doks.yaml
 - tcproute.yaml
 - service-mongo-nodeport.yaml
 - cronjob-ddns-mongo.yaml

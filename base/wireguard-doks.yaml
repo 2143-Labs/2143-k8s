@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wireguard-doks
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: wireguard-doks
+  template:
+    metadata:
+      labels:
+        app: wireguard-doks
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: wireguard
+        image: alpine:3.21
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -eu
+          apk add --no-cache wireguard-tools iptables iproute2
+          sysctl -w net.ipv4.ip_forward=1
+          sysctl -w net.ipv4.conf.all.src_valid_mark=1
+          ip link del dev wg0 2>/dev/null || true
+          ip link add dev wg0 type wireguard
+          wg set wg0 private-key /etc/wireguard/privatekey \
+            peer lNbjEa+tSPp03UIQrmqc1TiRdPO+E4zYYOvXm+a1Wig= \
+            endpoint john2143.com:51820 \
+            allowed-ips 10.99.0.0/24,192.168.5.0/24,192.168.6.0/24 \
+            persistent-keepalive 25
+          ip -4 address add 10.99.0.2/24 dev wg0
+          ip link set mtu 1420 up dev wg0
+          ip route replace 10.99.0.0/24 dev wg0
+          ip route replace 192.168.5.0/24 dev wg0
+          ip route replace 192.168.6.0/24 dev wg0
+          iptables -C FORWARD -i wg0 -j ACCEPT 2>/dev/null || iptables -A FORWARD -i wg0 -j ACCEPT
+          iptables -C FORWARD -o wg0 -j ACCEPT 2>/dev/null || iptables -A FORWARD -o wg0 -j ACCEPT
+          iptables -t nat -C POSTROUTING -o wg0 -j MASQUERADE 2>/dev/null || iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
+          wg show
+          exec sleep 2147483647
+        securityContext:
+          privileged: true
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "ip link del dev wg0 2>/dev/null || true"]
+        volumeMounts:
+        - name: wg-key
+          mountPath: /etc/wireguard
+          readOnly: true
+        - name: modules
+          mountPath: /lib/modules
+          readOnly: true
+      volumes:
+      - name: wg-key
+        secret:
+          secretName: wireguard-doks-key
+          defaultMode: 0400
+      - name: modules
+        hostPath:
+          path: /lib/modules
