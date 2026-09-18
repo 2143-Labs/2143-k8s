@@ -23,3 +23,7 @@ spec:
       kind: Deployment
       name: tailscale-exit
       namespace: default
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: labs-site
+      namespace: default
