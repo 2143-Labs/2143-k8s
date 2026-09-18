@@ -12,6 +12,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 | **Tailscale exit node** | VPN exit for tailnet |
 | **DERP relay** | Tailscale DERP server |
 | **OpenFrontPro** | API + Discord bot |
+| **labs.2143.me** | Storefront / coming-soon static site (nginx + ConfigMap) |
 
 ## Directory structure
 
@@ -27,6 +28,8 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── httproute.yaml
 │   ├── tcproute.yaml
 │   ├── wireguard-doks.yaml # WireGuard client into the home network
+│   ├── deployment-labs-site.yaml  # labs.2143.me static site
+│   ├── site/               # HTML/CSS source for labs.2143.me
 │   └── kustomization.yaml
 ├── overlays/
 │   ├── prod/               # Production overlay (patches, certs, PVCs, HPA)
@@ -41,6 +44,43 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 ├── Dockerfile.derper       # DERP relay image
 └── .github/workflows/      # CI: image builds, deploy status
 ```
+
+## Static site — labs.2143.me
+
+`labs.2143.me` is a plain static site: HTML and CSS in `base/site/`, served by
+`nginxinc/nginx-unprivileged` with the files mounted from a ConfigMap.
+
+| Piece | Where |
+|---|---|
+| Content | `base/site/` — `index.html`, `style.css`, `favicon.svg`, `robots.txt` |
+| Workload | `base/deployment-labs-site.yaml` — `labs-site` Deployment + Service (80 → 8080) |
+| Routing | `base/httproute.yaml` — `labs-site` HTTPRoute, hostname `labs.2143.me` |
+| TLS | the existing `*.2143.me` wildcard listener and certificate — nothing to add |
+
+The container runs unprivileged (uid 101, port 8080, read-only root, `/tmp` on
+an emptyDir), so it needs no extra capabilities or writable root:
+
+```bash
+docker run --rm -it -p 8080:8080 \
+  -v "$PWD/base/site:/usr/share/nginx/html:ro" \
+  --read-only --tmpfs /tmp \
+  nginxinc/nginx-unprivileged:1.31.6-alpine
+```
+
+**Adding a page or asset:** drop the file in `base/site/` and add it to the
+`configMapGenerator` in `base/kustomization.yaml` — kustomize does not glob
+generator inputs. The generated ConfigMap carries a content hash, so every
+change rolls the pods on its own.
+
+**Pointing `2143.me` here later:** move `2143.me` from `john2143-com-normal` to
+the `labs-site` hostnames in `base/httproute.yaml`; the image host keeps every
+other hostname it serves. The wildcard certificate already covers the apex, so
+no Gateway or Certificate change is needed either way.
+
+**When a build step is needed** (bundler, images, more than the ~1 MiB
+ConfigMap ceiling): swap the ConfigMap for an image — a `Dockerfile.site` that
+`COPY`s `base/site/` into nginx, built and pinned by a workflow like
+`.github/workflows/tor.yml`, then referenced from the Deployment.
 
 ## GitOps flow
 

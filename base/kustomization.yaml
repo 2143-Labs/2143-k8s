@@ -7,6 +7,7 @@ namespace: default
 #- openfront-pro-timeouts-proxy.yaml
 resources:
 - deployments.yaml
+- deployment-labs-site.yaml
 - deployments-openfrontpro.yaml
 - deployments-openfront-discordbot.yaml
 - gateway.yaml
@@ -21,3 +22,13 @@ resources:
 - service-mongo-nodeport.yaml
 # Add the crds for gateway api
 
+# Static site content, served by the labs-site Deployment. Kustomize does not
+# glob generator inputs, so every file under base/site/ must be listed here.
+# The name suffix hash makes content changes roll the pods.
+configMapGenerator:
+- name: labs-site-html
+  files:
+  - site/index.html
+  - site/style.css
+  - site/favicon.svg
+  - site/robots.txt
