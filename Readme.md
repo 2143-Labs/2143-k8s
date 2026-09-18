@@ -26,6 +26,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── gateway.yaml        # nginx-gateway-fabric Gateway
 │   ├── httproute.yaml
 │   ├── tcproute.yaml
+│   ├── wireguard-doks.yaml # WireGuard client into the home network
 │   └── kustomization.yaml
 ├── overlays/
 │   ├── prod/               # Production overlay (patches, certs, PVCs, HPA)
@@ -62,6 +63,52 @@ To apply manually (rare):
 ```bash
 kubectl apply -k overlays/prod/
 ```
+
+## Home network tunnel (WireGuard)
+
+`base/wireguard-doks.yaml` runs one privileged `hostNetwork` pod that brings up
+`wg0` and keeps a persistent tunnel to the home router (`wg-remote`,
+`john2143.com:51820`). It exists so the cluster can reach hosts in the home
+network without any of them being exposed to the internet:
+
+| Property | Value |
+|---|---|
+| Tunnel addresses | node side `10.99.0.2/24`, router side `10.99.0.1/24` |
+| Routed through it | `192.168.5.0/24`, `192.168.6.0/24`, `10.99.0.0/24` |
+| Direction | the cluster dials the router; the DO cloud firewall allows no inbound UDP 51820, so the home side can never dial in |
+| Private key | hand-applied Secret `wireguard-doks-key` (never in git — this repo is public) |
+| Liveness | `persistent-keepalive 25`; the router peer is `2143-k8s cluster: postgres client + tunnel` |
+
+Deliberately absent: any default route. `allowed-ips` lists home prefixes only,
+so a broken tunnel cannot blackhole the node's own egress. The keepalive is
+load-bearing, not cosmetic — the DO firewall is stateful, and the tunnel lives
+only as long as the cluster keeps re-initiating it.
+
+Verify:
+
+```bash
+kubectl -n default exec deploy/wireguard-doks -- wg show
+kubectl -n default logs deploy/wireguard-doks --tail=5
+```
+
+## MongoDB access
+
+MongoDB is **not** reachable from the internet. The `mongo-nodeport` Service
+still publishes `32040`, but the DigitalOcean cloud firewall no longer opens
+that port, and the `mongo.john2143.com` record and its DDNS CronJob are gone.
+
+Clients reach it either from the home network or through the tunnel above:
+
+| From | Address |
+|---|---|
+| Home LAN / home cluster | `10.99.0.2:32040` (over the tunnel) |
+| In-cluster | `mongo:27017` (`server-uri`) |
+
+The `worker-uri` key that home workloads consume is composed in
+`workloads/secrets/default-mongo-creds.yaml` in the `argo` repo, pointing at the
+tunnel address; the credentials still come from OpenBao. Reopening the public
+path means re-adding the firewall rule and the DNS record — there is no
+repo-side switch for it.
 
 ## CI/CD
 
