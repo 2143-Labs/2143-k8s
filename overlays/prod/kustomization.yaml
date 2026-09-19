@@ -35,6 +35,6 @@ images:
 - name: openfrontpro:latest
   newName: ghcr.io/2143-labs/openfrontpro-rs
   newTag: openfrontpro-latest
-- name: nginxinc/nginx-unprivileged:alpine
-  newName: nginxinc/nginx-unprivileged
-  newTag: 1.31.6-alpine
+- name: ghcr.io/2143-labs/site:latest
+  newName: ghcr.io/2143-labs/site
+  newTag: "1"
