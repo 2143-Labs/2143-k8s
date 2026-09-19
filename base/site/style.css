@@ -56,6 +56,17 @@ h1 {
   color: transparent;
 }
 
+ul {
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+}
+
+li + li {
+  margin-top: 0.35rem;
+}
+
 p {
   margin: 0;
   color: var(--muted);
