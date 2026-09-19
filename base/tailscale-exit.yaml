@@ -75,7 +75,7 @@ spec:
               name: tailscale-exit-auth
               key: key
         - name: TS_HOSTNAME
-          value: "do-exit-node"
+          value: "doks-us-nyc"
         - name: TS_EXTRA_ARGS
           value: "--login-server=https://net.john2143.com --advertise-exit-node --accept-routes"
         - name: TS_USERSPACE
