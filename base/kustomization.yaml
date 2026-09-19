@@ -31,4 +31,5 @@ configMapGenerator:
   - site/index.html
   - site/style.css
   - site/favicon.svg
+  - site/tile.svg
   - site/robots.txt

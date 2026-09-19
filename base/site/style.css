@@ -1,89 +1,186 @@
-/* 2143 Labs — one page, one stylesheet, no external requests. */
+/* 2143 Labs — one page, one stylesheet, no external requests.
+   Mobile: the column is the page. Desktop: the column keeps its reading
+   width and height, over a tiled background. */
 
 :root {
-  --bg: #0b0d12;
+  --bg: #08090d;
+  --panel: #0d1017;
   --text: #e9edf5;
-  --muted: #98a2b6;
+  --muted: #8f9aae;
+  --line: rgba(255, 255, 255, 0.08);
   --accent: #5eead4;
   --accent-2: #a78bfa;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  display: grid;
-  place-items: center;
-  margin: 0;
-  padding: 2rem;
-  min-height: 100vh;
-  min-height: 100svh;
-  background: var(--bg);
-  color: var(--text);
-  font: 400 17px/1.6 ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  letter-spacing: -0.005em;
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
-/* Ambient glow behind the page. */
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: url("/tile.svg");
+  background-size: 168px 168px;
+  color: var(--text);
+  font: 400 16px/1.55 ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Brand glow over the tile. */
 body::before {
   content: "";
   position: fixed;
-  inset: -30% -10% auto;
-  height: 75vh;
+  inset: 0;
   background:
-    radial-gradient(46rem 28rem at 16% 0%, rgba(94, 234, 212, 0.14), transparent 62%),
-    radial-gradient(40rem 26rem at 84% 6%, rgba(167, 139, 250, 0.16), transparent 60%);
+    radial-gradient(42rem 28rem at 10% -10%, rgba(94, 234, 212, 0.14), transparent 62%),
+    radial-gradient(38rem 26rem at 92% 110%, rgba(167, 139, 250, 0.18), transparent 60%);
   pointer-events: none;
-  z-index: 0;
 }
 
-main {
+/* The reading column. */
+.viewport {
   position: relative;
-  z-index: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 2rem;
+  min-height: 100svh;
+  min-height: 100dvh;
+  background: var(--panel);
 }
 
-h1 {
-  margin: 0 0 1rem;
-  font-size: clamp(2.25rem, 8vw, 3.5rem);
-  line-height: 1.05;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  background: linear-gradient(105deg, #ffffff 25%, var(--accent) 65%, var(--accent-2) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.viewport::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), #7dd3fc 55%, var(--accent-2));
 }
 
-ul {
-  margin: 0 0 1.75rem;
+/* Above phone width the column stops growing, and the tile takes the rest. */
+@media (min-width: 42rem) {
+  .viewport {
+    max-width: 27rem;
+    min-height: min(100svh - 5rem, 40rem);
+    margin: 2.5rem auto;
+    padding: 2rem 1.75rem 1.75rem;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 24px 70px -28px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Inside the framed column the contact block sits at the bottom. */
+  .contact {
+    margin-top: auto;
+    padding-top: 2rem;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.brand img {
+  display: block;
+  border-radius: 7px;
+}
+
+.lede {
+  margin: 2.5rem 0 0;
+  font-size: clamp(1.25rem, 5.4vw, 1.5rem);
+  line-height: 1.28;
+  font-weight: 500;
+  letter-spacing: -0.028em;
+}
+
+.lede__tail {
+  color: var(--muted);
+}
+
+.products {
+  margin: 2.25rem 0 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.products li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+
+.detail {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: -0.01em;
   color: var(--muted);
+  white-space: nowrap;
 }
 
-li + li {
-  margin-top: 0.35rem;
-}
-
-p {
-  margin: 0;
-  color: var(--muted);
-}
-
-p + p {
-  margin-top: 1.25rem;
-}
-
-a {
+a.detail {
   color: var(--accent);
-  text-decoration-color: rgba(94, 234, 212, 0.4);
-  text-underline-offset: 0.2em;
+  text-decoration: none;
+  padding-bottom: 1px;
+  border-bottom: 1px solid rgba(94, 234, 212, 0.35);
 }
 
-a:hover {
-  text-decoration-color: currentColor;
+a.detail:hover {
+  border-bottom-color: currentColor;
+}
+
+.contact {
+  margin-top: 2.5rem;
+}
+
+.contact p {
+  margin: 0;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.status__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.14);
+}
+
+.email {
+  font-size: 1.05rem;
+  color: var(--accent);
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(94, 234, 212, 0.35);
+}
+
+.email:hover {
+  border-bottom-color: currentColor;
 }
 
 :focus-visible {

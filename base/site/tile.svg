@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="168" viewBox="0 0 168 168">
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.11" stroke-width="1">
+    <!-- corner marks: each tile draws its own, so the lattice is seamless -->
+    <path d="M0 -6V6M-6 0H6"/>
+    <path d="M168 -6V6M162 0H174"/>
+    <path d="M0 162V174M-6 168H6"/>
+    <path d="M168 162V174M162 168H174"/>
+    <!-- centre diamond -->
+    <path d="M84 66 102 84 84 102 66 84Z"/>
+    <circle cx="84" cy="84" r="1.4" fill="#ffffff" stroke="none"/>
+  </g>
+</svg>
