@@ -29,12 +29,12 @@ images:
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
   newTag: "209"
-- name: nginxinc/nginx-unprivileged:alpine
-  newName: nginxinc/nginx-unprivileged
-  newTag: 1.31.6-alpine
 - name: openfrontpro-sim:latest
   newName: ghcr.io/2143-labs/openfrontpro-sim
   newTag: openfrontpro-latest
 - name: openfrontpro:latest
   newName: ghcr.io/2143-labs/openfrontpro-rs
   newTag: openfrontpro-latest
+- name: ghcr.io/2143-labs/site:latest
+  newName: ghcr.io/2143-labs/site
+  newTag: "2"
