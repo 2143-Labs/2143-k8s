@@ -108,8 +108,11 @@ spec:
               key: DISCORD_CLIENT_SECRET
         - name: DISCORD_ADMIN_IDS
           value: ""
+        # Home Temporal frontend, reached over the WireGuard tunnel (wireguard-doks
+        # routes 192.168.6.0/24 via wg0; the router accepts tunnel -> .6.20:7233 only).
+        # Plaintext gRPC is fine here: the tunnel is the encryption and the auth.
         - name: TEMPORAL_ADDRESS
-          value: "temporal-grpc.john2143.com:7233"
+          value: "192.168.6.20:7233"
 
         resources:
           requests:
