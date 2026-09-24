@@ -1,0 +1,25 @@
+# MongoDB for the home network, reachable ONLY through the WireGuard tunnel.
+#
+# 10.99.0.2 is the wg0 address that wireguard-doks puts on the node, so kube-proxy
+# DNATs 10.99.0.2:32040 -> mongo:27017 for packets that arrive over the tunnel.
+# Home workloads use worker-uri mongodb://...@10.99.0.2:32040/.
+#
+# This replaced a NodePort Service (mongo-nodeport). Do not bring a NodePort back:
+# DOKS opens every NodePort to 0.0.0.0/0 in its managed cloud firewall, which is
+# what left MongoDB on the public internet at 161.35.58.72:32040.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-tunnel
+  labels:
+    app: mongo
+spec:
+  type: ClusterIP
+  externalIPs:
+    - 10.99.0.2
+  selector:
+    app: mongo
+  ports:
+    - name: mongo
+      port: 32040
+      targetPort: 27017

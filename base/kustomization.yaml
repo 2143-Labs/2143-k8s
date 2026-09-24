@@ -19,5 +19,5 @@ resources:
 - tailscale-exit.yaml
 - wireguard-doks.yaml
 - tcproute.yaml
-- service-mongo-nodeport.yaml
+- service-mongo-tunnel.yaml
 # Add the crds for gateway api
