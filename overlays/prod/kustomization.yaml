@@ -37,4 +37,4 @@ images:
   newTag: openfrontpro-latest
 - name: ghcr.io/2143-labs/site:latest
   newName: ghcr.io/2143-labs/site
-  newTag: "3"
+  newTag: "4"
