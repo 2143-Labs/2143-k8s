@@ -28,6 +28,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── httproute.yaml
 │   ├── tcproute.yaml
 │   ├── wireguard-doks.yaml # WireGuard client into the home network
+│   ├── service-mongo-tunnel.yaml  # MongoDB for home, tunnel-only (externalIP 10.99.0.2)
 │   ├── deployment-labs-site.yaml  # labs.2143.me static site
 │   └── kustomization.yaml
 ├── overlays/
@@ -124,6 +125,19 @@ so a broken tunnel cannot blackhole the node's own egress. The keepalive is
 load-bearing, not cosmetic — the DO firewall is stateful, and the tunnel lives
 only as long as the cluster keeps re-initiating it.
 
+What uses it:
+
+| Direction | Endpoint | Used by |
+|---|---|---|
+| DO → home | `192.168.6.20:7233` — Temporal frontend (plaintext gRPC) | `john2143-com` via `TEMPORAL_ADDRESS` in `base/deployments.yaml` |
+| DO → home | `192.168.5.36:5432` — closet PostgreSQL | nothing right now (the `openfront-pro*` deployments are scaled to 0) |
+| home → DO | `10.99.0.2:32040` — MongoDB via Service `mongo-tunnel` | the home cluster's Temporal worker (`worker-uri`); see [MongoDB access](#mongodb-access) |
+
+The router-side forward ACL permits only those two DO → home destinations and
+drops and logs everything else arriving from the tunnel, so a new DO → home use
+needs a router rule as well as a change here. `wg0` is masqueraded, so every
+pod here reaches home as `10.99.0.2`.
+
 Verify:
 
 ```bash
@@ -133,22 +147,27 @@ kubectl -n default logs deploy/wireguard-doks --tail=5
 
 ## MongoDB access
 
-MongoDB is **not** reachable from the internet. The `mongo-nodeport` Service
-still publishes `32040`, but the DigitalOcean cloud firewall no longer opens
-that port, and the `mongo.john2143.com` record and its DDNS CronJob are gone.
-
-Clients reach it either from the home network or through the tunnel above:
+MongoDB is **not** reachable from the internet. Its only non-cluster path is
+`base/service-mongo-tunnel.yaml`: Service `mongo-tunnel`, `type: ClusterIP`
+with `externalIPs: [10.99.0.2]`, port `32040` → `27017`. `10.99.0.2` is the
+`wg0` address `wireguard-doks` puts on the node and is not routable from the
+internet, so outside the cluster only the tunnel above reaches it.
 
 | From | Address |
 |---|---|
 | Home LAN / home cluster | `10.99.0.2:32040` (over the tunnel) |
 | In-cluster | `mongo:27017` (`server-uri`) |
 
+**Do not add a NodePort for Mongo.** DOKS opens every `type: NodePort`
+Service's nodePort to `0.0.0.0/0` in its managed cloud firewall. The previous
+`mongo-nodeport` Service did exactly that: until 2026-09-24 MongoDB answered on
+`161.35.58.72:32040` from the internet. With the NodePort gone, DOKS removed
+the 32040 rule by itself and the port times out from outside. The
+`mongo.john2143.com` record and its DDNS CronJob are gone too.
+
 The `worker-uri` key that home workloads consume is composed in
 `workloads/secrets/default-mongo-creds.yaml` in the `argo` repo, pointing at the
-tunnel address; the credentials still come from OpenBao. Reopening the public
-path means re-adding the firewall rule and the DNS record — there is no
-repo-side switch for it.
+tunnel address; the credentials still come from OpenBao.
 
 ## CI/CD
 
