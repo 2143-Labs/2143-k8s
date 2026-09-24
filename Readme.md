@@ -116,6 +116,7 @@ network without any of them being exposed to the internet:
 | Routed through it | `192.168.5.0/24`, `192.168.6.0/24`, `10.99.0.0/24` |
 | Direction | the cluster dials the router; the DO cloud firewall allows no inbound UDP 51820, so the home side can never dial in |
 | Private key | hand-applied Secret `wireguard-doks-key` (never in git — this repo is public) |
+| Router public key | `26mSa5AF67ZCYagY8TBwlMLSo1YkQLUKAUjJajBwEgQ=` — pinned in `base/wireguard-doks.yaml`; rotated 2026-09-24. Rotating the router key means changing it there in the same minute, or the tunnel stays down |
 | Liveness | `persistent-keepalive 25`; the router peer is `2143-k8s cluster: postgres client + tunnel` |
 
 Deliberately absent: any default route. `allowed-ips` lists home prefixes only,
