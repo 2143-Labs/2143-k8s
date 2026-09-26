@@ -58,10 +58,13 @@ The page is built and published by
 | Image pin | `overlays/prod/kustomization.yaml` |
 | TLS | the existing `*.2143.me` wildcard listener and certificate — nothing to add |
 
-Deploying a site change is two steps: push to `site` (its workflow builds,
-smoke-tests and pushes `:<run_number>` plus `:latest`), then bump the `newTag`
-here. New pages need no change in this repo — the image carries the whole tree,
-so `store/index.html` in that repo is served at `/store/`.
+Push to `site/main`: its workflow smoke-tests and publishes
+`ghcr.io/2143-labs/site:<run_number>` and `:latest`, then promotes the run-number
+tag by changing only the production site `newTag` here. Flux reconciles that
+commit; a failed build or promotion leaves the current pin unchanged. Manual
+`workflow_dispatch` builds and publishes without promoting. New pages need no
+change here — the image carries the whole tree, so `store/index.html` in that
+repo is served at `/store/`.
 
 The site used to be a `configMapGenerator` here. That held until nested paths
 were wanted: a ConfigMap key cannot contain `/` (the API server rejects
@@ -186,6 +189,21 @@ and on pushes to `Dockerfile.tor`:
 The workflow fails if the new tag doesn't land or the rendered output isn't
 pinned to it. Flux sees the commit, syncs, and the `Recreate` strategy rolls out
 a new pod.
+
+### Labs site — automatic promotion
+
+The `site` push-to-`main` workflow promotes its smoke-tested GHCR run-number
+tag to the site `newTag` in `overlays/prod/kustomization.yaml` after publishing.
+The root overlay pin is deliberate: `:latest` alone does not deploy, and Flux
+image automation controllers are not installed. Promotion rejects older runs
+and verifies the rendered image before committing; Flux then reconciles the
+commit. A failed promotion leaves the current pin unchanged, while a manual
+`workflow_dispatch` publishes an image without promoting it.
+
+Promotion requires `DEPLOY_KEY_2143_K8S` in the `site` Actions secrets: its
+private half must match a public deploy key registered with write access on
+`2143-k8s`. No key material lives in either repo; without the secret the
+promotion job fails.
 
 ### DERP relay
 
