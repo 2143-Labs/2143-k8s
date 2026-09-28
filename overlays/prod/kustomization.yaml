@@ -23,9 +23,12 @@ images:
 - name: bot:latest
   newName: ghcr.io/2143-labs/openfront-api-discordbot
   newTag: openfront-api-discordbot-latest
+- name: ghcr.io/2143-labs/site:latest
+  newName: ghcr.io/2143-labs/site
+  newTag: "9"
 - name: ghcr.io/2143-labs/tor:latest
   newName: ghcr.io/2143-labs/tor
-  newTag: "24"
+  newTag: "25"
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
   newTag: "209"
@@ -35,6 +38,3 @@ images:
 - name: openfrontpro:latest
   newName: ghcr.io/2143-labs/openfrontpro-rs
   newTag: openfrontpro-latest
-- name: ghcr.io/2143-labs/site:latest
-  newName: ghcr.io/2143-labs/site
-  newTag: "9"
