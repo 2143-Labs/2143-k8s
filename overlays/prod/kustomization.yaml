@@ -28,7 +28,7 @@ images:
   newTag: "9"
 - name: ghcr.io/2143-labs/tor:latest
   newName: ghcr.io/2143-labs/tor
-  newTag: "25"
+  newTag: "26"
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
   newTag: "209"
