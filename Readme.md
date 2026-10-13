@@ -13,6 +13,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 | **DERP relay** | Tailscale DERP server |
 | **OpenFrontPro** | API + Discord bot |
 | **labs.2143.me** | Static site — image built by [2143-Labs/site](https://github.com/2143-Labs/site) |
+| **home-tunnel-proxy** | haproxy pinned to the WireGuard node: home Temporal :7233 and Seaweed S3 :8333 |
 
 ## Directory structure
 
@@ -28,6 +29,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── httproute.yaml
 │   ├── tcproute.yaml
 │   ├── wireguard-doks.yaml # WireGuard client into the home network
+│   ├── home-tunnel-proxy.yaml  # haproxy on the WireGuard node: home Temporal + Seaweed S3
 │   ├── service-mongo-tunnel.yaml  # MongoDB for home, tunnel-only (externalIP 10.99.0.2)
 │   ├── deployment-labs-site.yaml  # labs.2143.me static site
 │   └── kustomization.yaml
@@ -132,11 +134,12 @@ What uses it:
 
 | Direction | Endpoint | Used by |
 |---|---|---|
-| DO → home | `192.168.6.20:7233` — Temporal frontend (plaintext gRPC) | `john2143-com` via `TEMPORAL_ADDRESS` in `base/deployments.yaml` |
+| DO → home | `192.168.6.20:7233` — Temporal frontend (plaintext gRPC) | home-tunnel-proxy (Service home-tunnel-proxy:7233) |
+| DO → home | `192.168.6.31:8333` — Seaweed S3 (plain HTTP, SigV4) | home-tunnel-proxy (Service home-tunnel-proxy:8333) |
 | DO → home | `192.168.5.36:5432` — closet PostgreSQL | nothing right now (the `openfront-pro*` deployments are scaled to 0) |
 | home → DO | `10.99.0.2:32040` — MongoDB via Service `mongo-tunnel` | the home cluster's Temporal worker (`worker-uri`); see [MongoDB access](#mongodb-access) |
 
-The router-side forward ACL permits only those two DO → home destinations and
+The router-side forward ACL permits only the DO → home destinations above and
 drops and logs everything else arriving from the tunnel, so a new DO → home use
 needs a router rule as well as a change here. `wg0` is masqueraded, so every
 pod here reaches home as `10.99.0.2`.

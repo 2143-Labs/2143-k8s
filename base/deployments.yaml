@@ -116,10 +116,10 @@ spec:
 
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "10m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "384Mi"
+            memory: "768Mi"
             cpu: "1000m"
 
         livenessProbe:
@@ -128,8 +128,8 @@ spec:
             port: *port
           initialDelaySeconds: 5
           periodSeconds: 5
-          timeoutSeconds: 2
-          failureThreshold: 5
+          timeoutSeconds: 5
+          failureThreshold: 6
 
         readinessProbe:
           httpGet:

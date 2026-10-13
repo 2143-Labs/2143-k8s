@@ -1,0 +1,107 @@
+# TCP proxy pinned to the WireGuard node. Only that node (wireguard-doks, hostNetwork)
+# has routes to 192.168.6.0/24, so every DO pod reaches home Temporal and Seaweed S3
+# through this Service. The router accepts only tunnel -> .6.20:7233 and .6.31:8333.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-tunnel-proxy
+data:
+  haproxy.cfg: |
+    global
+      log stdout format raw local0
+    defaults
+      mode tcp
+      log global
+      timeout connect 5s
+      timeout client 15m
+      timeout server 15m
+    frontend temporal
+      bind :7233
+      default_backend temporal
+    backend temporal
+      server home 192.168.6.20:7233 check inter 10s
+    frontend seaweed
+      bind :8333
+      default_backend seaweed
+    backend seaweed
+      server home 192.168.6.31:8333 check inter 10s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-tunnel-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: home-tunnel-proxy
+  template:
+    metadata:
+      labels:
+        app: home-tunnel-proxy
+    spec:
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: wireguard-doks
+            topologyKey: kubernetes.io/hostname
+      volumes:
+      - name: config
+        configMap:
+          name: home-tunnel-proxy
+      containers:
+      - name: haproxy
+        image: haproxy:3.2.25-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 7233
+          name: temporal
+          protocol: TCP
+        - containerPort: 8333
+          name: s3
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /usr/local/etc/haproxy
+          name: config
+          readOnly: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 99
+          runAsGroup: 99
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+          seccompProfile:
+            type: RuntimeDefault
+        readinessProbe:
+          tcpSocket:
+            port: 8333
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+          limits:
+            memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-tunnel-proxy
+spec:
+  type: ClusterIP
+  selector:
+    app: home-tunnel-proxy
+  ports:
+  - name: temporal
+    port: 7233
+    targetPort: 7233
+    protocol: TCP
+  - name: s3
+    port: 8333
+    targetPort: 8333
+    protocol: TCP

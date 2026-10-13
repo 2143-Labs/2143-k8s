@@ -18,6 +18,7 @@ resources:
 - deployment-tor.yaml
 - tailscale-exit.yaml
 - wireguard-doks.yaml
+- home-tunnel-proxy.yaml
 - tcproute.yaml
 - service-mongo-tunnel.yaml
 # Add the crds for gateway api
