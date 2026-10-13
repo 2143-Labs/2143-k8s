@@ -9,7 +9,6 @@ resources:
 - https-redirect.yaml
 - deployment-redirector.yaml
 - grafana-routes.yaml
-- horizontalpodautoscaler.yaml
 #- misskey.yaml
 #- path: loadbalancer.yaml
 patches:

@@ -1,4 +1,5 @@
 ---
+# Holds the only clean copies of ~1,108 legacy files whose Seaweed copies are damaged (32-byte garbage prefix). Never delete or resize without the legacy-damage card.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

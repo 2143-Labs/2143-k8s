@@ -53,7 +53,7 @@ spec:
               name: minio-credentials
               key: S3_SECRET_KEY
         - name: MINIO_ENDPOINT_URL
-          value: "https://files.john2143.com"
+          value: "http://home-tunnel-proxy.default.svc.cluster.local:8333"
         - name: MINIO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -108,11 +108,9 @@ spec:
               key: DISCORD_CLIENT_SECRET
         - name: DISCORD_ADMIN_IDS
           value: ""
-        # Home Temporal frontend, reached over the WireGuard tunnel (wireguard-doks
-        # routes 192.168.6.0/24 via wg0; the router accepts tunnel -> .6.20:7233 only).
-        # Plaintext gRPC is fine here: the tunnel is the encryption and the auth.
+        # Home Temporal via home-tunnel-proxy (pinned to the WireGuard node).
         - name: TEMPORAL_ADDRESS
-          value: "192.168.6.20:7233"
+          value: "home-tunnel-proxy.default.svc.cluster.local:7233"
 
         resources:
           requests:

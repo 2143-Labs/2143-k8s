@@ -34,7 +34,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── deployment-labs-site.yaml  # labs.2143.me static site
 │   └── kustomization.yaml
 ├── overlays/
-│   ├── prod/               # Production overlay (patches, certs, PVCs, HPA)
+│   ├── prod/               # Production overlay (patches, certs, PVCs)
 │   └── dev/                # Dev overlay
 ├── clusters/prod/flux-system/  # FluxCD bootstrap + resources
 │   ├── gotk-components.yaml    # Flux controllers (source, kustomize, notification)
