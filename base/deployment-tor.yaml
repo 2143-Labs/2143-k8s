@@ -45,6 +45,14 @@ spec:
         image: ghcr.io/2143-labs/tor:latest
         command: ["tor"]
         args: ["-f", "/etc/tor/torrc"]
+        # k8s sends SIGTERM, which tor treats as "exit now" (no drain).
+        # SIGINT is the controlled path: close listeners, keep circuits for
+        # ShutdownWaitLength. preStop outlives that window; terminationGrace
+        # must stay above it.
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "kill -INT 1; sleep 35"]
         volumeMounts:
         - name: config
           mountPath: /etc/tor
@@ -80,10 +88,11 @@ data:
     ControlPort 0
     Log notice stdout
     DataDirectory /var/lib/tor
-    RelayBandwidthRate 60 MBits
-    RelayBandwidthBurst 120 MBits
+    RelayBandwidthRate 32 MBits
+    RelayBandwidthBurst 64 MBits
     MaxMemInQueues 512 MB
     NumCPUs 2
+    ShutdownWaitLength 30
 ---
 apiVersion: v1
 kind: Service

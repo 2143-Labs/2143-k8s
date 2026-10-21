@@ -220,7 +220,7 @@ promotion job fails.
 | Nickname | `2143Me` |
 | Contact | `tor@2143.me` |
 | ORPort | `30901` (hostNetwork NodePort) |
-| Bandwidth | 60 MBit rate / 120 MBit burst |
+| Bandwidth | 32 MBit rate / 64 MBit burst (4 MiB/s) |
 | Exit policy | `reject *:*` (middle relay only) |
 
 Config: `base/deployment-tor.yaml` + `base/kustomization.yaml`
@@ -235,6 +235,19 @@ Relay status: https://metrics.torproject.org/rs.html#details/6E00E3C03DBDF4FE99F
 kubectl get pods -l app=tor-middle
 kubectl logs -l app=tor-middle --tail=5
 ```
+
+### Restarting without dropping circuits
+
+Tor treats `SIGTERM` (what Kubernetes sends) as an immediate exit, but
+`SIGINT` as a controlled shutdown: listeners close, existing circuits get
+`ShutdownWaitLength` seconds (30) to finish, then the process exits. The
+deployment runs `kill -INT 1; sleep 35` in a `preStop` hook so the pod stays
+alive for that window. Keep `terminationGracePeriodSeconds` above 35.
+
+For live tuning without any restart, enable `ControlPort 127.0.0.1:9051` with
+cookie auth and use `SETCONF RelayBandwidthRate="32 MBits"`; bandwidth options
+apply immediately without dropping circuits. Changing the ConfigMap alone does
+not reload tor.
 
 ## Bootstrap
 
