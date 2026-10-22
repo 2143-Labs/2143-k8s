@@ -239,15 +239,23 @@ kubectl logs -l app=tor-middle --tail=5
 ### Restarting without dropping circuits
 
 Tor treats `SIGTERM` (what Kubernetes sends) as an immediate exit, but
-`SIGINT` as a controlled shutdown: listeners close, existing circuits get
-`ShutdownWaitLength` seconds (30) to finish, then the process exits. The
-deployment runs `kill -INT 1; sleep 35` in a `preStop` hook so the pod stays
-alive for that window. Keep `terminationGracePeriodSeconds` above 35.
+`SIGINT` as a controlled shutdown: listeners close, existing circuits keep
+running for `ShutdownWaitLength` seconds (30), then the process exits. The
+deployment runs `kill -INT 1; sleep 35` in a `preStop` hook; tor exiting ends
+the container, so the drain lasts ~30s and `terminationGracePeriodSeconds`
+stays above 35.
+
+ConfigMap edits do not restart tor, and `kubectl rollout restart` does not
+stick on a Flux-managed Deployment — Flux reverts the `restartedAt` annotation
+and rolls a second time. After editing `torrc`, delete the pod instead:
+
+```bash
+kubectl -n default delete pod -l app=tor-middle
+```
 
 For live tuning without any restart, enable `ControlPort 127.0.0.1:9051` with
-cookie auth and use `SETCONF RelayBandwidthRate="32 MBits"`; bandwidth options
-apply immediately without dropping circuits. Changing the ConfigMap alone does
-not reload tor.
+cookie auth and use `SETCONF RelayBandwidthRate="16 MBits"`; bandwidth options
+apply immediately without dropping circuits.
 
 ## Bootstrap
 
