@@ -220,7 +220,7 @@ promotion job fails.
 | Nickname | `2143Me` |
 | Contact | `tor@2143.me` |
 | ORPort | `30901` (hostNetwork NodePort) |
-| Bandwidth | 32 MBit rate / 64 MBit burst (4 MiB/s) |
+| Bandwidth | 16 MBit rate / 32 MBit burst (2 MiB/s) |
 | Exit policy | `reject *:*` (middle relay only) |
 
 Config: `base/deployment-tor.yaml` + `base/kustomization.yaml`

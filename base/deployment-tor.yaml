@@ -88,8 +88,8 @@ data:
     ControlPort 0
     Log notice stdout
     DataDirectory /var/lib/tor
-    RelayBandwidthRate 32 MBits
-    RelayBandwidthBurst 64 MBits
+    RelayBandwidthRate 16 MBits
+    RelayBandwidthBurst 32 MBits
     MaxMemInQueues 512 MB
     NumCPUs 2
     ShutdownWaitLength 30
