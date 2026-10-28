@@ -398,12 +398,16 @@ spec:
             path: /-/ready
             port: http
           periodSeconds: 10
+        # Sized to the single s-2vcpu-4gb node, which already has 1832m/2554Mi of
+        # its 1900m/3002Mi allocatable requested (2026-10-28). Requests must fit
+        # what is left or the pod never schedules; the limit is the real ceiling.
+        # Home Alloy pods scraping far more targets peak at 0.7-1.3 GiB.
         resources:
           requests:
-            cpu: 200m
-            memory: 512Mi
+            cpu: 50m
+            memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 768Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
