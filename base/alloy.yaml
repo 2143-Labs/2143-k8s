@@ -1,0 +1,422 @@
+# One Alloy for all DOKS observability: scrapes every metrics target and
+# remote-writes to home Mimir, and tails pod logs (incl. nginx access lines) to
+# home Loki. Both pushes travel over the WireGuard tunnel (wireguard-doks.yaml).
+#
+# One replica, not a DaemonSet: targets and logs are read through the Kubernetes
+# API, so a single pod covers the whole cluster; a DaemonSet would ship every
+# series and log line once per node.
+#
+# Pinned to the WireGuard node: only that node (wireguard-doks, hostNetwork) has
+# routes to 192.168.6.0/24, where Mimir (.23:8080) and Loki (.24:3100) live.
+#
+# The Tor relay (pods named tor-*) is excluded from every signal.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alloy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alloy
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/metrics", "nodes/proxy", "services", "endpoints", "pods", "pods/log", "namespaces"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: alloy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alloy
+subjects:
+- kind: ServiceAccount
+  name: alloy
+  namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alloy-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: do-block-storage
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy
+data:
+  config.alloy: |
+    // ── Metrics ─────────────────────────────────────────────────────────────
+
+    prometheus.remote_write "mimir" {
+      endpoint {
+        url = "http://192.168.6.23:8080/api/v1/push"
+      }
+      external_labels = { cluster = "doks", site = "nyc1" }
+      wal {
+        max_keepalive_time = "4h"
+      }
+    }
+
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+
+    discovery.kubernetes "ksm" {
+      role = "endpoints"
+      namespaces {
+        names = ["kube-system"]
+      }
+    }
+
+    // node-exporter DaemonSet, port 9101.
+    discovery.relabel "node_exporter" {
+      targets = discovery.kubernetes.pods.targets
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app"]
+        regex         = "node-exporter"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_ip"]
+        target_label  = "__address__"
+        replacement   = "$1:9101"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_node_name"]
+        target_label  = "node_name"
+      }
+      rule {
+        target_label = "node"
+        replacement  = "doks-1"
+      }
+    }
+
+    prometheus.scrape "node_exporter" {
+      targets    = discovery.relabel.node_exporter.output
+      job_name   = "node-exporter"
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    // kube-system/kube-state-metrics is headless: 8080 (http-metrics) carries kube_*,
+    // 8081 (telemetry) is KSM's own metrics and is not scraped.
+    discovery.relabel "ksm" {
+      targets = discovery.kubernetes.ksm.targets
+      rule {
+        source_labels = ["__meta_kubernetes_service_name"]
+        regex         = "kube-state-metrics"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_endpoint_port_name"]
+        regex         = "http-metrics"
+        action        = "keep"
+      }
+      rule {
+        target_label = "node"
+        replacement  = "doks-1"
+      }
+    }
+
+    prometheus.scrape "ksm" {
+      targets    = discovery.relabel.ksm.output
+      job_name   = "kube-state-metrics"
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    // kubelet and cAdvisor through the API server proxy (needs nodes/proxy).
+    discovery.relabel "kubelet" {
+      targets = discovery.kubernetes.nodes.targets
+      rule {
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "node_name"
+      }
+      rule {
+        target_label = "__address__"
+        replacement  = "kubernetes.default.svc:443"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "__metrics_path__"
+        replacement   = "/api/v1/nodes/$1/proxy/metrics"
+      }
+      rule {
+        target_label = "node"
+        replacement  = "doks-1"
+      }
+    }
+
+    discovery.relabel "cadvisor" {
+      targets = discovery.kubernetes.nodes.targets
+      rule {
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "node_name"
+      }
+      rule {
+        target_label = "__address__"
+        replacement  = "kubernetes.default.svc:443"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_node_name"]
+        target_label  = "__metrics_path__"
+        replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+      }
+      rule {
+        target_label = "node"
+        replacement  = "doks-1"
+      }
+    }
+
+    // The Tor relay is excluded from every signal. cAdvisor additionally drops
+    // cgroup rows with no container and its high-cardinality id/image labels.
+    prometheus.relabel "drop_tor" {
+      forward_to = [prometheus.remote_write.mimir.receiver]
+      rule {
+        source_labels = ["pod"]
+        regex         = "tor-.*"
+        action        = "drop"
+      }
+    }
+
+    prometheus.relabel "cadvisor" {
+      forward_to = [prometheus.relabel.drop_tor.receiver]
+      rule {
+        source_labels = ["container"]
+        regex         = ""
+        action        = "drop"
+      }
+      rule {
+        regex  = "id|image"
+        action = "labeldrop"
+      }
+    }
+
+    prometheus.scrape "kubelet" {
+      targets           = discovery.relabel.kubelet.output
+      job_name          = "kubelet"
+      scheme            = "https"
+      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      tls_config {
+        insecure_skip_verify = true
+      }
+      forward_to = [prometheus.relabel.drop_tor.receiver]
+    }
+
+    prometheus.scrape "cadvisor" {
+      targets           = discovery.relabel.cadvisor.output
+      job_name          = "cadvisor"
+      scheme            = "https"
+      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      tls_config {
+        insecure_skip_verify = true
+      }
+      forward_to = [prometheus.relabel.cadvisor.receiver]
+    }
+
+    // Cilium agent (:9090) and Hubble (:9965). The agent is hostNetwork, so pod IP = node IP.
+    discovery.relabel "cilium" {
+      targets = discovery.kubernetes.pods.targets
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        regex         = "kube-system"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_k8s_app"]
+        regex         = "cilium"
+        action        = "keep"
+      }
+      rule {
+        target_label = "node"
+        replacement  = "doks-1"
+      }
+    }
+
+    discovery.relabel "cilium_agent" {
+      targets = discovery.relabel.cilium.output
+      rule {
+        source_labels = ["__meta_kubernetes_pod_ip"]
+        target_label  = "__address__"
+        replacement   = "$1:9090"
+      }
+    }
+
+    discovery.relabel "hubble" {
+      targets = discovery.relabel.cilium.output
+      rule {
+        source_labels = ["__meta_kubernetes_pod_ip"]
+        target_label  = "__address__"
+        replacement   = "$1:9965"
+      }
+    }
+
+    prometheus.scrape "cilium_agent" {
+      targets    = discovery.relabel.cilium_agent.output
+      job_name   = "cilium-agent"
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    prometheus.scrape "hubble" {
+      targets    = discovery.relabel.hubble.output
+      job_name   = "hubble"
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    // nginx gateway (the DO load balancer's backend), :9113.
+    discovery.relabel "nginx_gateway" {
+      targets = discovery.kubernetes.pods.targets
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        regex         = "apps-gateway-nginx"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_ip"]
+        target_label  = "__address__"
+        replacement   = "$1:9113"
+      }
+      rule {
+        target_label = "node"
+        replacement  = "doks-1"
+      }
+    }
+
+    prometheus.scrape "nginx_gateway" {
+      targets    = discovery.relabel.nginx_gateway.output
+      job_name   = "nginx-gateway"
+      forward_to = [prometheus.remote_write.mimir.receiver]
+    }
+
+    // ── Logs ────────────────────────────────────────────────────────────────
+
+    discovery.relabel "logs" {
+      targets = discovery.kubernetes.pods.targets
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        target_label  = "app"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        regex         = "tor-.*"
+        action        = "drop"
+      }
+    }
+
+    loki.source.kubernetes "pods" {
+      targets    = discovery.relabel.logs.output
+      forward_to = [loki.process.ingress.receiver]
+    }
+
+    // nginx access lines are the ingress record: extract method and status as labels;
+    // client, path and bytes stay in the line (unbounded values would explode the index).
+    loki.process "ingress" {
+      forward_to = [loki.write.home.receiver]
+      stage.match {
+        selector = "{app=\"apps-gateway-nginx\"}"
+        stage.regex {
+          expression = "^(?P<remote_addr>\\S+) - - \\[(?P<ts>[^\\]]+)\\] \"(?P<method>\\S+) (?P<path>\\S+)[^\"]*\" (?P<status>\\d{3}) (?P<bytes>\\d+)"
+        }
+        stage.labels {
+          values = { method = "", status = "" }
+        }
+      }
+    }
+
+    loki.write "home" {
+      endpoint {
+        url = "http://192.168.6.24:3100/loki/api/v1/push"
+      }
+      external_labels = { cluster = "doks", site = "nyc1" }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alloy
+  labels:
+    app: alloy
+spec:
+  replicas: 1
+  # The data PVC is ReadWriteOnce; a rolling update would deadlock on it.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: alloy
+  template:
+    metadata:
+      labels:
+        app: alloy
+    spec:
+      serviceAccountName: alloy
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: wireguard-doks
+            topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        fsGroup: 473
+      containers:
+      - name: alloy
+        image: grafana/alloy:v1.21.2
+        args:
+        - run
+        - --server.http.listen-addr=0.0.0.0:12345
+        - --storage.path=/var/lib/alloy/data
+        - /etc/alloy/config.alloy
+        ports:
+        - name: http
+          containerPort: 12345
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: http
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: config
+          mountPath: /etc/alloy
+        - name: data
+          mountPath: /var/lib/alloy/data
+      volumes:
+      - name: config
+        configMap:
+          name: alloy
+      - name: data
+        persistentVolumeClaim:
+          claimName: alloy-data

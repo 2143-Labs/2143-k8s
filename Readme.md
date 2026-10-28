@@ -14,6 +14,8 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 | **OpenFrontPro** | API + Discord bot |
 | **labs.2143.me** | Static site — image built by [2143-Labs/site](https://github.com/2143-Labs/site) |
 | **home-tunnel-proxy** | haproxy pinned to the WireGuard node: home Temporal :7233 and Seaweed S3 :8333 |
+| **alloy** | DOKS metrics and pod/ingress logs to home Mimir and Loki over WireGuard (Tor excluded) |
+| **node-exporter** | DOKS host metrics on :9101 (replaces the helm-owned one) |
 
 ## Directory structure
 
@@ -31,6 +33,8 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── wireguard-doks.yaml # WireGuard client into the home network
 │   ├── home-tunnel-proxy.yaml  # haproxy on the WireGuard node: home Temporal + Seaweed S3
 │   ├── service-mongo-tunnel.yaml  # MongoDB for home, tunnel-only (externalIP 10.99.0.2)
+│   ├── node-exporter.yaml  # host metrics on :9101, scraped by alloy
+│   ├── alloy.yaml          # all DOKS metrics + logs -> home Mimir/Loki over WireGuard
 │   ├── deployment-labs-site.yaml  # labs.2143.me static site
 │   └── kustomization.yaml
 ├── overlays/
