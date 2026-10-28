@@ -133,7 +133,7 @@ data:
     prometheus.scrape "ksm" {
       targets    = discovery.relabel.ksm.output
       job_name   = "kube-state-metrics"
-      forward_to = [prometheus.remote_write.mimir.receiver]
+      forward_to = [prometheus.relabel.drop_tor.receiver]
     }
 
     // kubelet and cAdvisor through the API server proxy (needs nodes/proxy).
