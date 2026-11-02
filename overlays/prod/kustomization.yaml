@@ -29,7 +29,7 @@ images:
   newTag: "30"
 - name: imagehost:latest
   newName: ghcr.io/john2143/john2143.com
-  newTag: "217"
+  newTag: "218"
 - name: openfrontpro-sim:latest
   newName: ghcr.io/2143-labs/openfrontpro-sim
   newTag: openfrontpro-latest
