@@ -42,18 +42,6 @@ spec:
         - name: RUN_MODE
           value: "server"
 
-        - name: S3_ENDPOINT_URL
-          value: "https://nyc3.digitaloceanspaces.com"
-        - name: S3_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: S3_ACCESS_KEY
-        - name: S3_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: S3_SECRET_KEY
         - name: MINIO_ENDPOINT_URL
           value: "http://home-tunnel-proxy.default.svc.cluster.local:8333"
         - name: MINIO_ACCESS_KEY
