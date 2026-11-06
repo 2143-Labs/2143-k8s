@@ -354,11 +354,3 @@ spec:
       #- kind: Secret
         #name: poe2-sale-tls-key-prod
         #namespace: default
-
-
-  - name: mongo-proxy
-    port: 4040
-    protocol: TCP
-    allowedRoutes:
-      namespaces:
-        from: Same

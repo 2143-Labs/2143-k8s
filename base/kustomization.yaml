@@ -19,7 +19,6 @@ resources:
 - tailscale-exit.yaml
 - wireguard-doks.yaml
 - home-tunnel-proxy.yaml
-- tcproute.yaml
 - service-mongo-tunnel.yaml
 - node-exporter.yaml
 - alloy.yaml

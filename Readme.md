@@ -29,7 +29,6 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 │   ├── deployments-openfront-discordbot.yaml
 │   ├── gateway.yaml        # nginx-gateway-fabric Gateway
 │   ├── httproute.yaml
-│   ├── tcproute.yaml
 │   ├── wireguard-doks.yaml # WireGuard client into the home network
 │   ├── home-tunnel-proxy.yaml  # haproxy on the WireGuard node: home Temporal + Seaweed S3
 │   ├── service-mongo-tunnel.yaml  # MongoDB for home, tunnel-only (externalIP 10.99.0.2)
