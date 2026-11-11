@@ -1,0 +1,100 @@
+# cert-manager ships `webhook.timeoutSeconds: 30` (deploy/charts/cert-manager/
+# values.yaml, "maximum value ... more chance the underlying timeout error is
+# returned to the end user"). DigitalOcean's DOKS pre-upgrade check rejects any
+# webhook timeout outside 1-29s and blocks the cluster upgrade, and upstream
+# still defaults to 30 as of v1.21.3 - so the value has to be overridden.
+#
+# These are the upstream v1.15.3 webhook configurations with `timeoutSeconds`
+# lowered to 10. They are full objects on purpose: a partial object is only
+# valid as an update, so it cannot recreate these after a delete.
+#
+# `caBundle` is deliberately absent - cert-manager-cainjector owns it and fills
+# it from the `cert-manager.io/inject-ca-from-secret` annotation below. Adding
+# it here would fight cainjector on every reconcile.
+#
+# Rules match the running cert-manager version. When cert-manager is upgraded,
+# regenerate this file from the release manifest and re-apply the 10s override.
+# Source: cert-manager/templates/webhook-mutating-webhook.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: cert-manager-webhook
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "webhook"
+    app.kubernetes.io/version: "v1.15.3"
+  annotations:
+    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-ca"
+webhooks:
+  - name: webhook.cert-manager.io
+    rules:
+      - apiGroups:
+          - "cert-manager.io"
+        apiVersions:
+          - "v1"
+        operations:
+          - CREATE
+        resources:
+          - "certificaterequests"
+    admissionReviewVersions: ["v1"]
+    # This webhook only accepts v1 cert-manager resources.
+    # Equivalent matchPolicy ensures that non-v1 resource requests are sent to
+    # this webhook (after the resources have been converted to v1).
+    matchPolicy: Equivalent
+    timeoutSeconds: 10
+    failurePolicy: Fail
+    # Only include 'sideEffects' field in Kubernetes 1.12+
+    sideEffects: None
+    clientConfig:
+      service:
+        name: cert-manager-webhook
+        namespace: cert-manager
+        path: /mutate
+---
+# Source: cert-manager/templates/webhook-validating-webhook.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: cert-manager-webhook
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "webhook"
+    app.kubernetes.io/version: "v1.15.3"
+  annotations:
+    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-ca"
+webhooks:
+  - name: webhook.cert-manager.io
+    namespaceSelector:
+      matchExpressions:
+      - key: cert-manager.io/disable-validation
+        operator: NotIn
+        values:
+        - "true"
+    rules:
+      - apiGroups:
+          - "cert-manager.io"
+          - "acme.cert-manager.io"
+        apiVersions:
+          - "v1"
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - "*/*"
+    admissionReviewVersions: ["v1"]
+    # This webhook only accepts v1 cert-manager resources.
+    # Equivalent matchPolicy ensures that non-v1 resource requests are sent to
+    # this webhook (after the resources have been converted to v1).
+    matchPolicy: Equivalent
+    timeoutSeconds: 10
+    failurePolicy: Fail
+    sideEffects: None
+    clientConfig:
+      service:
+        name: cert-manager-webhook
+        namespace: cert-manager
+        path: /validate
