@@ -29,7 +29,7 @@ spec:
     spec:
       hostNetwork: true
       nodeSelector:
-        doks.digitalocean.com/node-pool: pool-medium
+        doks.digitalocean.com/node-pool: pool-medium-dedicated
       terminationGracePeriodSeconds: 120
       initContainers:
       - name: volume-permissions

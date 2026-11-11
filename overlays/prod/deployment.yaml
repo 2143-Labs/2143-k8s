@@ -6,4 +6,4 @@ spec:
   template:
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: pool-medium
+        doks.digitalocean.com/node-pool: pool-medium-dedicated
