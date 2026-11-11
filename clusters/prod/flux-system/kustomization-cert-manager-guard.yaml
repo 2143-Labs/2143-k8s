@@ -1,0 +1,19 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-guard
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./cert-manager-guard
+  # The objects this applies are owned by cert-manager itself (installed with
+  # cmctl), not by this repo. If this Kustomization pruned, removing the file
+  # below would delete cert-manager's webhook configurations entirely and, with
+  # failurePolicy: Fail, block every Certificate write in the cluster.
+  prune: false
+  # cmctl owns `timeoutSeconds` on both objects and rewrites it to 30 on every
+  # `cmctl upgrade`; force lets this Kustomization take that field back.
+  force: true
+  sourceRef:
+    kind: GitRepository
+    name: 2143-k8s
