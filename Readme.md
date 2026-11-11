@@ -268,3 +268,33 @@ kubectl apply -k clusters/prod/flux-system/
 ```
 
 The cluster must first have nginx-gateway-fabric and cert-manager installed.
+
+`clusters/prod/flux-system/` is applied **only** by that second command - no
+Kustomization in this repo points at it, so Flux never reconciles it. Adding or
+changing a Kustomization there (or `gotk-components.yaml`) has no effect until
+the command is re-run. Everything under `overlays/prod` is reconciled normally.
+
+Add `helm-controller` to `--components` before the first `HelmRelease` lands:
+the three default controllers do not ship the `HelmRelease`/`HelmRepository`
+CRDs, so those manifests apply but nothing ever reconciles them.
+
+## Upgrading the cluster
+
+The DOKS pre-upgrade check **blocks** the upgrade when any admission webhook has
+a `timeoutSeconds` outside 1-29. It also lists hostPath mounts, containers
+without resource requests, and block volumes on non-StatefulSet pods - those are
+advisories, not blockers.
+
+cert-manager ships `webhook.timeoutSeconds: 30` deliberately (it surfaces the
+underlying timeout instead of a generic error) and still does in v1.21.3, so
+waiting for an upstream change will not clear the finding. `cert-manager-guard/`
+pins both `cert-manager-webhook` configurations to 10s through a Flux
+Kustomization with `force: true` (`cmctl` owns the field) and `prune: false`
+(pruning would delete the webhook configurations outright, and with
+`failurePolicy: Fail` that blocks every Certificate write).
+
+- After a cert-manager upgrade, regenerate `cert-manager-guard/cert-manager-webhooks.yaml`
+  from the release manifest and re-apply the 10s override - the rules in it track
+  v1.15.3, and a stale copy silently stops covering new or changed rules.
+- Keep `caBundle` out of that file; cert-manager-cainjector owns it via the
+  `cert-manager.io/inject-ca-from-secret` annotation.
