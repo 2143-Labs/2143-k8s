@@ -1,0 +1,28 @@
+# cert-manager ships `webhook.timeoutSeconds: 30` (deploy/charts/cert-manager/
+# values.yaml, "maximum value ... more chance the underlying timeout error is
+# returned to the end user"). DigitalOcean's DOKS pre-upgrade check rejects any
+# webhook timeout outside 1-29s and blocks the cluster upgrade, and upstream
+# still defaults to 30 as of v1.21.3 - so the value has to be overridden, not
+# waited out.
+#
+# These are deliberately *partial* objects: each names the webhook and sets only
+# `timeoutSeconds`, so server-side apply takes ownership of that single field
+# and leaves `rules`, `clientConfig`, `failurePolicy` and the cainjector-managed
+# `caBundle` under their existing managers (cmctl / cert-manager-cainjector).
+# Duplicating the whole object here would go stale on the next cert-manager
+# upgrade and silently revert webhook rules.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: cert-manager-webhook
+webhooks:
+  - name: webhook.cert-manager.io
+    timeoutSeconds: 10
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: cert-manager-webhook
+webhooks:
+  - name: webhook.cert-manager.io
+    timeoutSeconds: 10
