@@ -7,5 +7,6 @@ resources:
   - kustomization-prod.yaml
   - kustomization-nginx-gateway.yaml
   - kustomization-cert-manager-guard.yaml
+  - kustomization-external-secrets.yaml
   - notification-provider.yaml
   - notification-alert.yaml
