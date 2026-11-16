@@ -16,6 +16,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 | **home-tunnel-proxy** | haproxy pinned to the WireGuard node: home Temporal :7233 and Seaweed S3 :8333 |
 | **alloy** | DOKS metrics and pod/ingress logs to home Mimir and Loki over WireGuard (Tor excluded) |
 | **node-exporter** | DOKS host metrics on :9101 (replaces the helm-owned one) |
+| **Cilium MTU** | Cluster CNI MTU pinned to `1420` in `cilium-config` — DO-managed and applied by hand, see [CNI MTU](#cni-mtu-cilium) |
 
 ## Directory structure
 
@@ -110,6 +111,84 @@ To apply manually (rare):
 ```bash
 kubectl apply -k overlays/prod/
 ```
+
+## CNI MTU (Cilium)
+
+`cilium-config` carries an explicit `mtu: "1420"`. DOKS auto-detection gave the
+two nodes different answers, and every pod an MSS wider than the device its
+traffic had to cross:
+
+| Where | Value |
+|---|---|
+| Node NICs (`eth0`/`eth1`) | 1500 |
+| `cilium_host` on a fresh node pool, before the fix | **1280** on `pool-medium`, **1420** on `pool-small` |
+| Pod `eth0`, and the MSS TCP derived from it | 1500 → 1460 |
+| `wg0`, the tunnel hop every home-bound packet crosses | 1420 — a 1460-MSS packet is dropped there |
+| Pod-to-pod, after the pin | full-size 1500 frames get through; a pod still on a 1500 veth pushes 64 KB cross-node |
+
+The failure is silent and looks like a server hang, not a network error. Two
+places dropped full-size packets: `pool-medium` capped its own cross-node
+traffic at the auto-detected `cilium_host` of 1280, and any home-bound sender
+handed 1460-MSS packets to a 1420 `wg0`. Nothing reports the drop — the far end
+keeps waiting, its own idle timeout fires, and the caller logs `socket hang up`
+two minutes later. Same-node traffic and single-packet requests are unaffected,
+so every health check stays green. The image host hit it on every upload with a
+body larger than a single full-size packet: the empty-body probe answered in
+71 ms while a 30 KB PUT hung for the full 120 s — `john2143-com` on one node →
+`home-tunnel-proxy` on the other → home Seaweed S3, with the tunnel, the filer
+and the home router all innocent.
+
+1420 is `1500 − 80`, exactly the overhead Cilium WireGuard reserves, so enabling
+WireGuard encryption later needs no second MTU change and no pod migration. It
+is also below every MSS in the table above, which is what makes the drop
+impossible rather than intermittent.
+
+`cilium-config` is **DigitalOcean-managed** (`doks.digitalocean.com/managed`), so
+this key is set by hand and a cluster upgrade or node-pool change can drop it.
+Re-apply it then:
+
+```bash
+kubectl -n kube-system patch cm cilium-config --type merge -p '{"data":{"mtu":"1420"}}'
+kubectl -n kube-system rollout restart ds/cilium
+kubectl -n kube-system rollout status ds/cilium
+```
+
+Restarting the agents moves `cilium_host` immediately. It does not resize an
+existing pod's veth: those keep the MTU they were created with (1500) and their
+routes carry no MTU clamp, so their MSS stays 1460. That is harmless on the
+paths verified here, but recreate the workloads at a quiet moment so 1420 is
+uniform. Verify on **every** node — they must agree:
+
+```bash
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  kubectl -n kube-system exec ${p#pod/} -c cilium-agent -- \
+    sh -c 'echo "mtu=$(cilium-dbg config get mtu) host=$(cat /sys/class/net/cilium_host/mtu)"'
+done
+# expect: mtu=1420 host=1420   on all of them
+```
+
+Then prove the path rather than trusting the config: a body over one full-size
+packet must come back instead of hanging.
+
+```bash
+# tunnel hop: from the proxy pod to the filer at home
+{ printf 'PUT /imagehost-files/_netprobe HTTP/1.1\r\nHost: x\r\nContent-Length: 64000\r\n\r\n'
+  head -c 64000 /dev/zero | tr '\0' x; } |
+  kubectl exec -i -n default deploy/home-tunnel-proxy -- nc 192.168.6.31 8333 | head -1
+# expect: HTTP/1.1 403 Forbidden  (the probe is unsigned — it must answer, not hang)
+
+# cross-node: repeat from a pod on a DIFFERENT node than home-tunnel-proxy
+#   kubectl get pods -o wide        # pick one whose NODE differs from home-tunnel-proxy's
+#   kubectl exec -i -n default <pod> -- nc home-tunnel-proxy.default.svc.cluster.local 8333
+# before the pin, any body above one full-size packet got no reply at all (a
+# 30 KB PUT was enough), and the caller sat until the filer's 120 s idle timeout
+# closed the connection
+```
+
+Verified 2026-11-16 on both nodes: `mtu=1420 host=1420`, and bodies of 1420 B,
+64 KB, 1 MB and 4 MB all answered from the opposite node (77–590 ms). Ingest
+from the DOKS web pod resumed with no `socket hang up` in its log, and every
+upload stranded during the incident reached the filer.
 
 ## Home network tunnel (WireGuard)
 
