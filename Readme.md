@@ -16,6 +16,7 @@ is defined as code — Git is the source of truth, FluxCD handles reconciliation
 | **home-tunnel-proxy** | haproxy pinned to the WireGuard node: home Temporal :7233 and Seaweed S3 :8333 |
 | **alloy** | DOKS metrics and pod/ingress logs to home Mimir and Loki over WireGuard (Tor excluded) |
 | **node-exporter** | DOKS host metrics on :9101 (replaces the helm-owned one) |
+| **Cilium MTU** | Cluster CNI MTU pinned to `1420` in `cilium-config` — DO-managed and applied by hand, see [CNI MTU](#cni-mtu-cilium) |
 
 ## Directory structure
 
@@ -109,6 +110,67 @@ needed — the cluster converges to match the repo.
 To apply manually (rare):
 ```bash
 kubectl apply -k overlays/prod/
+```
+
+## CNI MTU (Cilium)
+
+`cilium-config` carries an explicit `mtu: "1420"`. DOKS auto-detection gave the
+two nodes different answers, and the pods an MTU the fabric could not carry:
+
+| Where | Value |
+|---|---|
+| Node NICs (`eth0`/`eth1`) | 1500 |
+| Cross-node pod path, measured | drops anything above ~1480 |
+| `cilium_host` on a fresh node pool, before the fix | **1280** on `pool-medium`, **1420** on `pool-small` |
+| Pod `eth0`, and the MSS TCP derived from it | 1500 → 1460 |
+
+The failure is silent and looks like a server hang, not a network error: a
+pod-to-pod request that needs a full-size packet never arrives, the far end
+keeps waiting, its own idle timeout fires, and the caller logs `socket hang up`
+two minutes later. Same-node pod traffic and small requests are unaffected, so
+every health check stays green. The image host hit it on every upload over
+~1.4 KB — `john2143-com` on one node → `home-tunnel-proxy` on the other → home
+Seaweed S3 — while the tunnel, the filer and the home router were all innocent.
+
+1420 is `1500 − 80`: below the ~1480 the fabric really carries, and exactly the
+overhead Cilium WireGuard reserves, so enabling WireGuard encryption later needs
+no second MTU change and no pod migration.
+
+`cilium-config` is **DigitalOcean-managed** (`doks.digitalocean.com/managed`), so
+this key is set by hand and a cluster upgrade or node-pool change can drop it.
+Re-apply it then:
+
+```bash
+kubectl -n kube-system patch cm cilium-config --type merge -p '{"data":{"mtu":"1420"}}'
+kubectl -n kube-system rollout restart ds/cilium
+kubectl -n kube-system rollout status ds/cilium
+```
+
+Restarting the agents reconfigures existing pods' routes; pods created after
+that get a 1420 veth too. Verify on **every** node — they must agree:
+
+```bash
+for p in $(kubectl -n kube-system get pods -l k8s-app=cilium -o name); do
+  kubectl -n kube-system exec ${p#pod/} -c cilium-agent -- \
+    sh -c 'echo "mtu=$(cilium-dbg config get mtu) host=$(cat /sys/class/net/cilium_host/mtu)"'
+done
+# expect: mtu=1420 host=1420   on all of them
+```
+
+Then prove the path rather than trusting the config: a body over one full-size
+packet must come back instead of hanging.
+
+```bash
+# same-node sanity: proxy → home filer over the tunnel
+{ printf 'PUT /imagehost-files/_netprobe HTTP/1.1\r\nHost: x\r\nContent-Length: 64000\r\n\r\n'
+  head -c 64000 /dev/zero | tr '\0' x; } |
+  kubectl exec -i -n default deploy/home-tunnel-proxy -- nc 192.168.6.31 8333 | head -1
+# expect: HTTP/1.1 403 Forbidden  (the probe is unsigned — it must answer, not hang)
+
+# cross-node sanity: repeat from a pod on a DIFFERENT node
+#   kubectl get pods -o wide        # pick one whose NODE differs from home-tunnel-proxy's
+#   kubectl exec -i -n default <pod> -- nc home-tunnel-proxy.default.svc.cluster.local 8333
+# before the MTU pin this returned nothing for anything over ~1.4 KB
 ```
 
 ## Home network tunnel (WireGuard)
